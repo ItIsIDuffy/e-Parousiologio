@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Τμήμα Μηχανικών Πληροφορικής, Υπολογιστών & Τηλεπικοινωνιών</title>
+
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1f4063" media="(prefers-color-scheme: dark)">
+
+  <link rel="icon" media="(prefers-color-scheme: light)" href="/favicon-light.png" sizes="32x32">
+  <link rel="icon" media="(prefers-color-scheme: dark)"  href="/favicon-dark.png"  sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wrap" role="main" aria-live="polite">
+    <header>
+      <picture>
+        <source srcset="/eparousiologio-white.png" media="(prefers-color-scheme: dark)">
+        <img src="/eparousiologio-blue.png" class="logo" alt="e-Parousiologio logo">
+      </picture>
+      <div>
+        <h1>e-Parousiologio</h1>
+        <div class="sub">
+          <div class="live-course">Τρέχον μάθημα: <strong id="courseName">—</strong></div>
+          <div class="live-section">Τμήμα: <strong id="sectionName">(ενεργό)</strong></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="bar"></div>
+
+    <div id="statusBanner" class="banner hidden">
+      <div id="statusBannerHint" class="hint"></div>
+      <div class="spinner hidden" id="bannerSpinner"></div>
+    </div>
+
+    <div id="actionBlock" class="action-block hidden">
+      <button id="retryBtn" class="mutedBtn">Δοκιμάστε ξανά</button>
+    </div>
+
+    <form id="aemForm" class="hidden" autocomplete="off">
+      <input id="aem" type="text" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="12" placeholder="ΑΕΜ" aria-label="Αριθμός Μητρώου Φοιτητή">
+      <button type="submit">Δήλωση Παρουσίας</button>
+    </form>
+    
+    <div class="info-hint">
+        Για τη δήλωση παρουσίας, η πλατφόρμα χρειάζεται πρόσβαση στην τοποθεσία σας.
+    </div>
+  </main>
+
+  <script type="module" src="app.obf.js"></script>
+</body>
+</html>

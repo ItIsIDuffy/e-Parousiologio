@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">e-Parousiologio</string>
+    <string name="ihu">ΔΙΕΘΝΕΣ\nΠΑΝΕΠΙΣΤΗΜΙΟ\nΕΛΛΑΔΟΣ</string>
+    <string name="import_elabs_file">Εισαγωγή κατάστασης από αρχεία (e-labs)</string>
+    <string name="export_attendance_excel">Εξαγωγή παρουσιών σε αρχείο Excel</string>
+    <string name="select_current_section_lab">Επιλογή / Έναρξη εργαστηρίου</string>
+    <string name="manage_current_attendance">Διαχείριση παρουσιών</string>
+    <string name="manage_students_record">Διαχείριση φοιτητικών καταστάσεων</string>
+    <string name="allow_attendance">Να επιτρέπονται παρουσίες:</string>
+    <string name="current_section">Τμήμα: %1$s</string>
+    <string name="current_course">Τρέχον μάθημα: %1$s</string>
+    <string name="select_course_section">Επιλέξτε τμήμα μαθήματος</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="clear_course">Λήξη εργαστηρίου</string>
+    <string name="section">Τμήμα</string>
+    <string name="add_student">Εγγραφή φοιτητή</string>
+    <string name="add_student_title">Εγγραφή Φοιτητή</string>
+    <string name="AEM">AEM</string>
+    <string name="semester">Εξάμηνο</string>
+    <string name="full_name">Ονοματεπώνυμο</string>
+    <string name="field_required">Συμπληρώστε το πεδίο</string>
+    <string name="delete_student">Διαγραφή φοιτητή</string>
+    <string name="swap_student">Αμοιβαία ανταλλαγή</string>
+    <string name="transfer_student">Μεταφορά φοιτητή</string>
+    <string name="transfer_to_course_section">Μεταφορά φοιτητή στο τμήμα</string>
+    <string name="swap_to_course_section">Αμοιβαία ανταλλαγή προς τμήμα</string>
+    <string name="swap_students_title_message">Θέλετε να πραγματοποιήσετε αμοιβαία ανταλλαγή μεταξύ των φοιτητών:\n\n%1$s\n(από %2$s)\n🔄\n%3$s\n(από %4$s);</string>
+    <string name="verify">Επιβεβαίωση</string>
+    <string name="cancel">Άκυρο</string>
+    <string name="select_course_for_exporting">Επιλέξτε μάθημα για εξαγωγή παρουσιών</string>
+</resources>

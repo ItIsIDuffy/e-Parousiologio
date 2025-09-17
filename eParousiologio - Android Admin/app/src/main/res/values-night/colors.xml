@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="reverseBW">@color/white</color>
+
+    <color name="primary_color">#1f4063</color>
+    <color name="primary_color_2">#466388</color>
+    <color name="primary_color_3">#254568</color>
+    <color name="primary_color_4">#93aed8</color>
+    <color name="primary_color_5">#bbd7ff</color>
+
+    <color name="text_color">@color/primary_color_5</color>
+
+    <color name="parent_background">@color/primary_color</color>
+    <color name="sheet_background">#1f4063</color>
+    <color name="popup_background">#466388</color>
+    <color name="logo_color">@color/white</color>
+    <color name="main_menu_button">@color/primary_color_2</color>
+    <color name="main_menu_button_text_color">@color/primary_color_5</color>
+
+    <color name="switch_track_off">#1FFFFFFF</color>
+    <color name="switch_thumb_off">#777777</color>
+    <color name="switch_track_on">#93aed8</color>
+    <color name="switch_thumb_on">#1f4063</color>
+    <color name="switch_track_disabled">#1FFFFFFF</color>
+    <color name="switch_thumb_disabled">#61FFFFFF</color>
+
+    <color name="COLOR_SUCCESS_BG">#C8E6C9</color>
+    <color name="COLOR_SUCCESS_TXT">#2E7D32</color>
+    <color name="COLOR_ERROR_BG">#FFCDD2</color>
+    <color name="COLOR_ERROR_TXT">#B71C1C</color>
+    <color name="COLOR_WARNING_BG">#FFE0B2</color>
+    <color name="COLOR_WARNING_TXT">#EF6C00</color>
+    <color name="COLOR_INFO_TXT">#BBDEFB</color>
+    <color name="COLOR_INFO_BG">#0D47A1</color>
+</resources>

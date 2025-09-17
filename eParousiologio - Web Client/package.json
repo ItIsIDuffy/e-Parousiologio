@@ -1,0 +1,16 @@
+{
+  "name": "eparousiologio-web-client",
+  "version": "1.0.0",
+  "description": "Client για το eparousiologio με obfuscation πριν το deploy",
+  "scripts": {
+    "build": "javascript-obfuscator public/app.js --output public/app.obf.js",
+    "deploy": "npm run build && firebase deploy --only hosting"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.1"
+  }
+}

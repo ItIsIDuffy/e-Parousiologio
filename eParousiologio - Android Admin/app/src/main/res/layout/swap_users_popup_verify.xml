@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    app:cardBackgroundColor="@color/popup_background"
+    app:cardCornerRadius="12dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/swapStudentsTitleMessageMTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:padding="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/swap_students_title_message"
+            android:textAlignment="center"
+            android:textColor="@color/reverseBW"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/swapStudentsAcceptMB"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/verify"
+            android:textColor="@color/primary_color_3"
+            android:textSize="16sp"
+            app:backgroundTint="@color/primary_color_5"
+            app:cornerRadius="12dp"
+            app:layout_constraintBottom_toTopOf="@+id/swapStudentsCancelMB"
+            app:layout_constraintEnd_toEndOf="@+id/swapStudentsTitleMessageMTV"
+            app:layout_constraintStart_toStartOf="@+id/swapStudentsTitleMessageMTV"
+            app:layout_constraintTop_toBottomOf="@+id/swapStudentsTitleMessageMTV"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:rippleColor="?colorControlHighlight" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/swapStudentsCancelMB"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/cancel"
+            android:textColor="@color/biometric_error_color"
+            android:textSize="16sp"
+            app:cornerRadius="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/swapStudentsAcceptMB"
+            app:layout_constraintStart_toStartOf="@+id/swapStudentsAcceptMB"
+            app:layout_constraintTop_toBottomOf="@+id/swapStudentsAcceptMB"
+            app:rippleColor="?colorControlHighlight" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

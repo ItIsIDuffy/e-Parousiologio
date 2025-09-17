@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "398482455434",
+    "project_id": "parousiologio-6b9c0",
+    "storage_bucket": "parousiologio-6b9c0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398482455434:android:3020421a631577ce832673",
+        "android_client_info": {
+          "package_name": "gr.ihu.eparousiologio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQ_6wWJbgDZTV6T6v0HrbCYO7Tn6PrPXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

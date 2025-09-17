@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="32dp"
+    tools:context=".view.fragment.AddStudentSheet">
+
+    <TextView
+        android:id="@+id/addStudentTitleMTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_student_title"
+        android:textColor="@color/reverseBW"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/addStudentSectionMTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_section"
+        android:textColor="@color/reverseBW"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addStudentTitleMTV" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/addStudentCourseMTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_course"
+        android:textColor="@color/reverseBW"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addStudentSectionMTV" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/addStudentAEMTIL"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/AEM"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeWidth="2dp"
+        app:hintEnabled="true"
+        app:hintTextColor="@color/text_input_hint"
+        app:boxStrokeColor="@color/text_input_stroke"
+        app:layout_constraintEnd_toStartOf="@+id/addStudentSemesterTIL"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addStudentCourseMTV">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/addStudentAEMTIET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:lines="1"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:nextFocusForward="@id/addStudentSemesterTIET" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/addStudentSemesterTIL"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/semester"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeWidth="2dp"
+        app:helperText="πχ 2ο, 6ο"
+        app:helperTextEnabled="true"
+        app:hintEnabled="true"
+        app:hintTextColor="@color/text_input_hint"
+        app:boxStrokeColor="@color/text_input_stroke"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/addStudentAEMTIL"
+        app:layout_constraintTop_toBottomOf="@+id/addStudentCourseMTV">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/addStudentSemesterTIET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:lines="1"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:nextFocusForward="@id/addStudentFullNameTIET" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/addStudentFullNameTIL"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/full_name"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeWidth="2dp"
+        app:hintEnabled="true"
+        app:hintTextColor="@color/text_input_hint"
+        app:boxStrokeColor="@color/text_input_stroke"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/addStudentAEMTIL"
+        app:layout_constraintTop_toBottomOf="@+id/addStudentSemesterTIL">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/addStudentFullNameTIET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            android:lines="1"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addStudentMB"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="@string/add_student"
+        android:textColor="@color/primary_color_3"
+        app:backgroundTint="@color/primary_color_5"
+        app:cornerRadius="12dp"
+        app:iconTint="@color/primary_color_3"
+        app:layout_constraintEnd_toEndOf="@+id/addStudentFullNameTIL"
+        app:layout_constraintStart_toStartOf="@+id/addStudentFullNameTIL"
+        app:layout_constraintTop_toBottomOf="@+id/addStudentFullNameTIL" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
