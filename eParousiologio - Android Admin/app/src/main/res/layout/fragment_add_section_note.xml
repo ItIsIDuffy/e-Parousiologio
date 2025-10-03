@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="32dp"
+    tools:context=".view.fragment.AddSectionNoteSheet">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/addSectionNoteMTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_note"
+        android:textColor="@color/reverseBW"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/addSectionNoteCourseMTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_section"
+        android:textColor="@color/reverseBW"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addSectionNoteMTV" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/addSectionNoteSectionMTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_course"
+        android:textColor="@color/reverseBW"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addSectionNoteCourseMTV" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/addSectionNoteTIL"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:hint="@string/type_here"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/text_input_stroke"
+        app:boxStrokeWidth="2dp"
+        app:hintEnabled="true"
+        app:hintTextColor="@color/text_input_hint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addSectionNoteSectionMTV">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/addSectionNoteTIET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:lines="5"
+            android:maxLines="5" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addSectionNoteSubmitMB"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/add"
+        android:textColor="@color/primary_color_3"
+        app:backgroundTint="@color/primary_color_5"
+        app:cornerRadius="12dp"
+        app:iconTint="@color/primary_color_3"
+        app:layout_constraintEnd_toEndOf="@+id/addSectionNoteTIL"
+        app:layout_constraintStart_toStartOf="@+id/addSectionNoteTIL"
+        app:layout_constraintTop_toBottomOf="@+id/addSectionNoteTIL" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

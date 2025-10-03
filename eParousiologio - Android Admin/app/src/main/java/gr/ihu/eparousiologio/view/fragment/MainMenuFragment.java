@@ -16,11 +16,11 @@ import android.view.ViewGroup;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.Group;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -40,15 +40,12 @@ public class MainMenuFragment extends Fragment {
     Context context;
     LiveCourseRepositoryDAO liveCourseRepository = new LiveCourseRepositoryDAO();
     ListenerRegistration liveCourse = null;
+    Group actionsGroup;
     private View rootView;
-    private MaterialButton accessStudentRecordMB, importStudentRecordMB, selectCurrentSectionMB, exportAttendanceMB, clearCourseMB;
+    private MaterialButton accessStudentRecordMB, importStudentRecordMB, selectCurrentSectionMB, exportAttendanceMB, addNoteToSectionMB, saveAttendanceForTodayMB, clearCourseMB;
     private MaterialTextView currentCourseMTV, currentSectionMTV;
-    private MaterialSwitch isOpenSwitch;
     private ActivityResultLauncher<Intent> elabsTextFileLauncher;
-
     private ActivityResultLauncher<String> writePermLauncher;
-
-    private boolean updatingFromFirestore = false;
 
     public static MainMenuFragment newInstance() {
         return new MainMenuFragment();
@@ -99,13 +96,15 @@ public class MainMenuFragment extends Fragment {
     }
 
     private void initializeUI() {
+        actionsGroup = rootView.findViewById(R.id.actionsGroup);
         accessStudentRecordMB = rootView.findViewById(R.id.accessStudentRecordMB);
         importStudentRecordMB = rootView.findViewById(R.id.importStudentRecordMB);
         selectCurrentSectionMB = rootView.findViewById(R.id.selectCurrentSectionMB);
         exportAttendanceMB = rootView.findViewById(R.id.exportAttendanceMB);
         currentCourseMTV = rootView.findViewById(R.id.currentCourseMTV);
         currentSectionMTV = rootView.findViewById(R.id.currentSectionMTV);
-        isOpenSwitch = rootView.findViewById(R.id.isOpenSwitch);
+        saveAttendanceForTodayMB = rootView.findViewById(R.id.saveAttendanceForTodayMB);
+        addNoteToSectionMB = rootView.findViewById(R.id.addNoteToSectionMB);
         clearCourseMB = rootView.findViewById(R.id.clearCourseMB);
 
         accessStudentRecordMB.setOnClickListener(view -> {
@@ -178,7 +177,17 @@ public class MainMenuFragment extends Fragment {
                 currentCourseMTV.setText(getString(R.string.current_course, liveCourse.getCourseTitle()));
                 currentSectionMTV.setText(getString(R.string.current_section, liveCourse.getLabName()));
 
-                clearCourseMB.setVisibility(View.VISIBLE);
+                actionsGroup.setVisibility(View.VISIBLE);
+
+                saveAttendanceForTodayMB.setOnClickListener(view -> {
+                    ((MainActivity) requireActivity()).addFragment(DailyAttendanceRecordFragment.newInstance(liveCourse));
+                });
+
+                addNoteToSectionMB.setOnClickListener(view -> {
+                    AddSectionNoteSheet addSectionNoteSheet = new AddSectionNoteSheet(liveCourse);
+                    addSectionNoteSheet.show(getParentFragmentManager(), "AddSectionNoteSheet");
+                });
+
                 clearCourseMB.setOnClickListener(view -> {
                     liveCourseRepository.deleteLiveCourse(new OnResultListener<>() {
                         @Override
@@ -188,37 +197,6 @@ public class MainMenuFragment extends Fragment {
 
                         @Override
                         public void onFailure(Exception e) {
-                            CustomToast.showError(requireActivity(), e.getMessage());
-                        }
-                    });
-                });
-
-                isOpenSwitch.setOnCheckedChangeListener(null);
-                updatingFromFirestore = true;
-                isOpenSwitch.setVisibility(View.VISIBLE);
-                isOpenSwitch.setEnabled(true);
-                isOpenSwitch.setClickable(true);
-                isOpenSwitch.setChecked(liveCourse.getIsOpen());
-                updatingFromFirestore = false;
-
-                isOpenSwitch.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                    if (updatingFromFirestore) return;
-
-                    liveCourse.setOpen(isChecked);
-                    isOpenSwitch.setEnabled(false);
-                    isOpenSwitch.setClickable(false);
-
-                    liveCourseRepository.updateLiveCourseAttendance(liveCourse, new OnResultListener<>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            isOpenSwitch.setEnabled(true);
-                            isOpenSwitch.setClickable(true);
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            isOpenSwitch.setEnabled(true);
-                            isOpenSwitch.setClickable(true);
                             CustomToast.showError(requireActivity(), e.getMessage());
                         }
                     });
@@ -242,16 +220,6 @@ public class MainMenuFragment extends Fragment {
         currentCourseMTV.setText(getString(R.string.current_course, "-"));
         currentSectionMTV.setText(getString(R.string.current_section, "-"));
 
-        clearCourseMB.setVisibility(View.GONE);
-
-        isOpenSwitch.setOnCheckedChangeListener(null);
-
-        updatingFromFirestore = true;
-        isOpenSwitch.setChecked(false);
-        updatingFromFirestore = false;
-
-        isOpenSwitch.setVisibility(View.GONE);
-        isOpenSwitch.setEnabled(false);
-        isOpenSwitch.setClickable(false);
+        actionsGroup.setVisibility(View.GONE);
     }
 }

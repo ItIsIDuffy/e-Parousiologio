@@ -28,4 +28,10 @@
     <string name="verify">Επιβεβαίωση</string>
     <string name="cancel">Άκυρο</string>
     <string name="select_course_for_exporting">Επιλέξτε μάθημα για εξαγωγή παρουσιών</string>
+    <string name="add_section_note">Προσθήκη Υποσημείωσης</string>
+    <string name="attendance_record_list">Λίστα παρουσιών</string>
+    <string name="add_note">Προσθήκη σημείωσης</string>
+    <string name="type_here">Πληκτρολογίστε εδώ...</string>
+    <string name="add">Προσθήκη</string>
+    <string name="submit_attendance_record">Ανέβασμα κατάστασης παρουσιών</string>
 </resources>

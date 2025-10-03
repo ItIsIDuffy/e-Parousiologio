@@ -8,8 +8,6 @@ import gr.ihu.eparousiologio.util.OnResultListener;
 
 public interface CourseSectionRepository {
     void getAllCourses(OnResultListener<List<Course>> listener);
-
     void getCourseById(String id, OnResultListener<Course> listener);
-
     void getAllSectionsByCourseId(String id, OnResultListener<List<Section>> listener);
 }

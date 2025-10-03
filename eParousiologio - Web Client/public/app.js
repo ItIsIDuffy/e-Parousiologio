@@ -1,7 +1,7 @@
 // ========== Firebase (ESM) ==========
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { 
-  getFirestore, doc, getDoc, setDoc, serverTimestamp 
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15,19 +15,28 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-const db = getFirestore(app);
+// ========== Βοηθητικά DOM ==========
+const $ = s => document.querySelector(s); // προηγήσου όλων των $('#…')
 
 // ========== UI/DOM ==========
 const TARGET = { lat: 41.0748233, lng: 23.555335 };
 const RADIUS_M = 150;
-const $ = s => document.querySelector(s);
 
 const courseNameEl = $('#courseName');
 const sectionNameEl = $('#sectionName');
-const aemForm = $('#aemForm'), retryBtn = $('#retryBtn'),
-      statusBanner = $('#statusBanner'), statusBannerHint = $('#statusBannerHint'),
-      bannerSpinner = $('#bannerSpinner'), actionBlock = $('#actionBlock');
+const aemForm = $('#aemForm'),
+      retryBtn = $('#retryBtn'),
+      statusBanner = $('#statusBanner'),
+      statusBannerHint = $('#statusBannerHint'),
+      bannerSpinner = $('#bannerSpinner'),
+      actionBlock = $('#actionBlock');
+
+// Ενδιάμεσο login
+const loginForm = $('#loginForm');
+const loginName = $('#loginName');
+const loginPass = $('#loginPass');
 
 const setStatus = (type, message, showButton = false, showSpinner = false) => {
   statusBannerHint.textContent = message;
@@ -89,6 +98,7 @@ function startWatchdog(ms){
 }
 function clearWatchdog(){ if(watchdog){ clearTimeout(watchdog); watchdog=null } }
 
+// ========== Εκκίνηση ==========
 retryBtn.addEventListener('click', init);
 init();
 
@@ -96,6 +106,7 @@ async function init(){
   try {
     setStatus('info','Έλεγχος διαθεσιμότητας…', false, true);
     show(aemForm,false);
+    show(loginForm,false);
 
     const live = await getLiveState();
 
@@ -116,18 +127,21 @@ async function init(){
 
     if (!live.isOpen) {
       setStatus('warn','Το σύστημα παρουσιών είναι κλειστό αυτή τη στιγμή.', false, false);
+      show(loginForm,false);
       show(aemForm,false);
       return;
     }
 
-    await runGeolocationGate();
+    // ΑΦΑΙΡΩΝΤΑΣ ΤΟ ΠΑΡΑΚΑΤΩ ΣΧΟΛΙΟ ΦΙΛΕ ΜΟΥ Η ΦΙΛΗ ΜΟΥ ΑΝΤΙΣΤΟΙΧΑ ΕΝΕΡΓΟΠΟΙΕΙΣ ΤΗΝ ΕΠΑΛΗΘΕΥΣΗ ΤΟΠΟΘΕΣΙΑΣ 
+    // await runGeolocationGate();
 
-    setStatus('success','Η τοποθεσία επαληθεύτηκε. Παρακαλούμε εισάγετε τον ΑΕΜ σας.');
-    show(aemForm,true);
-    show(statusBanner,false);
+    // ΑΥΤΟ ΠΑΕΙ ΣΥΜΦΩΝΑ ΜΕ ΤΙΣ ΤΕΛΕΥΤΑΙΕΣ ΑΠΑΙΤΗΣΕΙΣ ΤΗΣ ΝΕΑΣ ΦΟΡΜΑΣ 
+    setStatus('info','Παρακαλούμε πραγματοποιήστε σύνδεση για να συνεχίσετε.', false, false);
+    show(loginForm, true);
+    show(aemForm, false);
 
   } catch (e) {
-    if (e && (e.message === 'insecure-context' || e.message === 'no-geo' || 
+    if (e && (e.message === 'insecure-context' || e.message === 'no-geo' ||
               e.message === 'timeout' || e.message === 'out-of-zone' || typeof e?.code === 'number')) {
       return;
     }
@@ -172,12 +186,33 @@ async function runGeolocationGate(){
     } else {
       setStatus('error', 'Παρουσιάστηκε σφάλμα στην τοποθεσία. Παρακαλούμε δοκιμάστε ξανά.', true, false);
     }
-    throw e; 
+    throw e;
   } finally {
     locating = false; retryBtn.disabled = false;
   }
 }
 
+// ========== Handlers ==========
+
+// Ενδιάμεση "σύνδεση"
+loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = loginName.value.trim();
+  const pass = loginPass.value.trim();
+
+  if (!name || !pass) {
+    setStatus('warn', 'Τα πεδία Όνομα χρήστη και Κωδικός πρόσβασης δεν μπορούν να είναι κενά.');
+    return;
+  }
+
+  // Δεν γίνεται καμία αποθήκευση/έλεγχος backend – είναι μόνο βήμα ροής.
+  setStatus('success', 'Σύνδεση επιτυχής. Παρακαλούμε εισάγετε τον ΑΕΜ σας.');
+  show(loginForm, false);
+  show(aemForm, true);
+  show(statusBanner, false);
+});
+
+// Δήλωση ΑΕΜ
 aemForm.addEventListener('submit', async e => {
   e.preventDefault();
   const aem = $('#aem').value.trim();
@@ -223,7 +258,6 @@ aemForm.addEventListener('submit', async e => {
       return;
     }
 
-    // Γράψε/merge header
     await setDoc(headerRef, {
       courseId: live.courseId,
       courseTitle: live.courseTitle || live.courseId,
@@ -232,7 +266,6 @@ aemForm.addEventListener('submit', async e => {
       openedAt: serverTimestamp()
     }, { merge: true });
 
-    // Γράψε το entry
     await setDoc(entryRef, {
       at: serverTimestamp(),
       ok: true,
@@ -243,16 +276,15 @@ aemForm.addEventListener('submit', async e => {
       studentAEM: aem
     });
 
-    // Επιτυχία → κρύψε το κουμπί
     setStatus('success', `Η παρουσία σας στο τμήμα "${live.labName}" καταχωρήθηκε.`);
     show(aemForm,false);
     show(actionBlock,true);
-    retryBtn.classList.add('hidden');  // κρύβει το κουμπί
+    retryBtn.classList.add('hidden'); 
     aemForm.reset();
 
   } catch (err) {
     console.error('write error:', err?.code, err?.message);
     setStatus('error','Η καταχώριση απέτυχε. Προσπαθήστε ξανά.');
-    retryBtn.classList.remove('hidden'); // δείξε το κουμπί σε σφάλμα
+    retryBtn.classList.remove('hidden'); 
   }
 });

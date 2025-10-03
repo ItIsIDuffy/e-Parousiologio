@@ -41,13 +41,29 @@
       <button id="retryBtn" class="mutedBtn">Δοκιμάστε ξανά</button>
     </div>
 
+    <!-- Η ΠΑΡΟΥΣΑ ΦΟΡΜΑ EINAI ΑΠΛΩΣ ΕΝΑ EXTRA REQUIREMENT ΠΟΥ ΖΗΤΗΘΗΚΕ ΓΙΑ ΜΕΛΛΟΝΤΙΚΗ ΑΝΑΠΤΥΞΗ & ΔΙΑΣΥΝΔΕΣΗ ΜΕ ΤΟ API ΤΗΣ ΣΧΟΛΗΣ ΟΤΑΝ ΚΑΙ ΑΝ ΜΕ ΤΟ ΚΑΛΟ ΤΟ ΔΩΣΟΥΝ -->
+    <form id="loginForm" class="hidden" autocomplete="off" novalidate>
+      <input id="loginName" type="text" placeholder="Όνομα χρήστη" aria-label="Όνομα">
+      <input id="loginPass" type="password" placeholder="Κωδικός πρόσβασης" aria-label="Κωδικός">
+      <button type="submit">Σύνδεση</button>
+    </form>
+
     <form id="aemForm" class="hidden" autocomplete="off">
-      <input id="aem" type="text" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="12" placeholder="ΑΕΜ" aria-label="Αριθμός Μητρώου Φοιτητή">
+      <input
+        id="aem"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        minlength="4"
+        maxlength="12"
+        placeholder="ΑΕΜ"
+        aria-label="Αριθμός Μητρώου Φοιτητή"
+      >
       <button type="submit">Δήλωση Παρουσίας</button>
     </form>
-    
+
     <div class="info-hint">
-        Για τη δήλωση παρουσίας, η πλατφόρμα χρειάζεται πρόσβαση στην τοποθεσία σας.
+      Για τη δήλωση παρουσίας, η πλατφόρμα χρειάζεται πρόσβαση στην τοποθεσία σας.
     </div>
   </main>
 

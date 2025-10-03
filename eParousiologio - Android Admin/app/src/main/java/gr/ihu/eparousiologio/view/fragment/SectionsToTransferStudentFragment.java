@@ -81,8 +81,19 @@ public class SectionsToTransferStudentFragment extends Fragment {
             studentRecordsRepositoryDAO.transferStudent(selectedCourse.getCourseId(), sectionSource.getLabId(), selectedSection.getLabId(), studentToTransfer, new OnResultListener<>() {
                 @Override
                 public void onSuccess(Void result) {
-                    CustomToast.showSuccess(requireActivity(), "Η μεταφορά του " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName() + " πραγματοποιήθηκε");
-                    ((MainActivity) requireActivity()).resetToMainMenu();
+                    new CourseSectionDAO().addNoteOnCourse(course.getCourseId(), "ΜΕΤΑΦΟΡΑ ΦΟΙΤΗΤΗ: " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName(), new OnResultListener<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            CustomToast.showSuccess(requireActivity(), "Η μεταφορά του " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName() + " πραγματοποιήθηκε");
+                            ((MainActivity) requireActivity()).resetToMainMenu();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            CustomToast.showSuccess(requireActivity(), "Η μεταφορά του " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName() + " πραγματοποιήθηκε");
+                            ((MainActivity) requireActivity()).resetToMainMenu();
+                        }
+                    });
                 }
 
                 @Override
