@@ -17,12 +17,15 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -116,6 +119,16 @@ public final class ExcelExporterNew {
                 createCell(hdr, 1, "ΟΝΟΜΑΤΕΠΩΝΥΜΟ", header); fit.accept(1, "ΟΝΟΜΑΤΕΠΩΝΥΜΟ");
                 createCell(hdr, 2, "Παρουσίες/Σύνολο", header); fit.accept(2, "Παρουσίες/Σύνολο");
 
+                List<NewAttendanceSnapshot> sortedSnaps = new ArrayList<>(labSnaps);
+                sortedSnaps.sort(Comparator.comparing(ExcelExporterNew::snapshotSortKey));
+                int col = 3;
+                for (NewAttendanceSnapshot s : sortedSnaps) {
+                    String colTitle = snapshotHeaderTitle(s);
+                    createCell(hdr, col, colTitle, header);
+                    fit.accept(col, colTitle);
+                    col++;
+                }
+
                 Map<String, String> aemToName = new LinkedHashMap<>();
                 Section sec = sectionsByLabId != null ? sectionsByLabId.get(labId) : null;
                 if (sec != null && sec.getStudents() != null) {
@@ -127,24 +140,25 @@ public final class ExcelExporterNew {
                     }
                 }
 
-                Map<String, Integer> presentCountByAem = new LinkedHashMap<>();
-                for (NewAttendanceSnapshot snap : labSnaps) {
+                List<Set<String>> presentBySnap = new ArrayList<>();
+                for (NewAttendanceSnapshot snap : sortedSnaps) {
+                    Set<String> presentAems = new LinkedHashSet<>();
                     List<NewAttendanceEntry> entries = snap.getAttendanceEntries();
-                    if (entries == null) continue;
-                    for (NewAttendanceEntry ne : entries) {
-                        if (ne == null) continue;
-                        String aem = nz(ne.getStudentAEM());
-                        if (aem.isEmpty()) continue;
-
-                        if (!aemToName.containsKey(aem)) {
-                            String nm = nz(ne.getFullName());
-                            aemToName.put(aem, nm.isEmpty() ? "." : nm);
-                        }
-
-                        if (ne.isWasPresent()) {
-                            presentCountByAem.merge(aem, 1, Integer::sum);
+                    if (entries != null) {
+                        for (NewAttendanceEntry ne : entries) {
+                            if (ne == null) continue;
+                            String aem = nz(ne.getStudentAEM());
+                            if (aem.isEmpty()) continue;
+                            if (!aemToName.containsKey(aem)) {
+                                String nm = nz(ne.getFullName());
+                                aemToName.put(aem, nm.isEmpty() ? "." : nm);
+                            }
+                            if (ne.isWasPresent()) {
+                                presentAems.add(aem);
+                            }
                         }
                     }
+                    presentBySnap.add(presentAems);
                 }
 
                 List<String> allAems = new ArrayList<>(aemToName.keySet());
@@ -154,21 +168,30 @@ public final class ExcelExporterNew {
                 for (String aem : allAems) {
                     Row r = getOrCreateRow(sh, rowIdx++);
                     String name = nz(aemToName.get(aem));
-                    int sessionsTotal = labSnaps.size();
-                    int presentCount = presentCountByAem.getOrDefault(aem, 0);
+                    int sessionsTotal = sortedSnaps.size();
+                    int presentCount = 0;
+                    for (Set<String> set : presentBySnap) if (set.contains(aem)) presentCount++;
                     String presStr = presentCount + " / " + sessionsTotal;
 
                     createCell(r, 0, aem, normal); fit.accept(0, aem);
                     createCell(r, 1, name.isEmpty() ? "." : name, normal); fit.accept(1, name);
                     createCell(r, 2, presStr, normal); fit.accept(2, presStr);
+
+                    int c = 3;
+                    for (Set<String> set : presentBySnap) {
+                        String val = set.contains(aem) ? "ΟΚ" : "ΕΛΕΙΠΕ";
+                        createCell(r, c, val, normal);
+                        fit.accept(c, val);
+                        c++;
+                    }
                 }
 
-                for (int col = 0; col <= Math.max(maxColUsed.get(), 3); col++) {
-                    int maxChars = colMaxChars.getOrDefault(col, 0);
+                for (int c = 0; c <= Math.max(maxColUsed.get(), 3 + sortedSnaps.size()); c++) {
+                    int maxChars = colMaxChars.getOrDefault(c, 0);
                     int width = (maxChars + 2) * 256;
                     if (width > 255 * 256) width = 255 * 256;
                     if (width < 8 * 256) width = 8 * 256;
-                    sh.setColumnWidth(col, width);
+                    sh.setColumnWidth(c, width);
                 }
             }
 
@@ -222,6 +245,18 @@ public final class ExcelExporterNew {
             if (wb != null) try { wb.close(); } catch (Exception ignore) {}
             if (os != null) try { output.close(os); } catch (Exception ignore) {}
         }
+    }
+
+    private static String snapshotHeaderTitle(NewAttendanceSnapshot s) {
+        String id = s != null ? s.getSnapshotId() : null;
+        if (id != null && id.length() >= 10) return id.substring(0, 10);
+        return "Ημερομηνία";
+    }
+
+    private static String snapshotSortKey(NewAttendanceSnapshot s) {
+        String id = s != null ? s.getSnapshotId() : null;
+        if (id != null && id.length() >= 10) return id.substring(0, 10);
+        return "";
     }
 
     private static String fullNameOrDot(Student s) {
