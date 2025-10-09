@@ -1,16 +1,12 @@
 package gr.ihu.eparousiologio.repository;
 
 import java.util.List;
-import java.util.Map;
 
-import gr.ihu.eparousiologio.model.AttendanceEntry;
+import gr.ihu.eparousiologio.model.AttendanceSnapshot;
 import gr.ihu.eparousiologio.util.OnResultListener;
 
 public interface AttendanceRepository {
-    void fetchCourseAttendanceOnce(String courseId, OnResultListener<AttendanceSnapshot> listener);
-
-    class AttendanceSnapshot {
-        public Map<String, Integer> sessionsByLab;
-        public Map<String, Map<String, List<AttendanceEntry>>> entriesByLabAndAem;
-    }
+    void uploadDailyAttendanceRecord(AttendanceSnapshot snapshot, OnResultListener<Void> listener);
+    void fetchAttendanceSnapshotBySnapshotId(String courseId, String snapshotId, OnResultListener<AttendanceSnapshot> snapshot);
+    void fetchAllCourseAttendanceSnapshots(String courseId, OnResultListener<List<AttendanceSnapshot>> snapshots);
 }

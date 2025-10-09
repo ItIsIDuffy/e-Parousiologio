@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class NewAttendanceSnapshot {
+public class AttendanceSnapshot {
     private String snapshotId;
     private String courseId;
     private String courseTitle;
@@ -16,11 +16,11 @@ public class NewAttendanceSnapshot {
     private String labName;
     @ServerTimestamp
     private Date savedAt;
-    private List<NewAttendanceEntry> attendanceEntries;
+    private List<AttendanceEntry> attendanceEntries;
 
-    public NewAttendanceSnapshot() {}
+    public AttendanceSnapshot() {}
 
-    public NewAttendanceSnapshot(String snapshotId, String courseId, String courseTitle, String labId, String labName, List<NewAttendanceEntry> attendanceEntries) {
+    public AttendanceSnapshot(String snapshotId, String courseId, String courseTitle, String labId, String labName, List<AttendanceEntry> attendanceEntries) {
         this.snapshotId = snapshotId;
         this.courseId = courseId;
         this.courseTitle = courseTitle;
@@ -29,7 +29,7 @@ public class NewAttendanceSnapshot {
         this.attendanceEntries = attendanceEntries;
     }
 
-    public NewAttendanceSnapshot(String snapshotId, String courseId, String courseTitle, String labId, String labName, Date savedAt, List<NewAttendanceEntry> attendanceEntries) {
+    public AttendanceSnapshot(String snapshotId, String courseId, String courseTitle, String labId, String labName, Date savedAt, List<AttendanceEntry> attendanceEntries) {
         this.snapshotId = snapshotId;
         this.courseId = courseId;
         this.courseTitle = courseTitle;
@@ -94,11 +94,11 @@ public class NewAttendanceSnapshot {
     }
 
     @PropertyName("attendanceEntries")
-    public List<NewAttendanceEntry> getAttendanceEntries() {
+    public List<AttendanceEntry> getAttendanceEntries() {
         return attendanceEntries;
     }
     @PropertyName("attendanceEntries")
-    public void setAttendanceEntries(List<NewAttendanceEntry> attendanceEntries) {
+    public void setAttendanceEntries(List<AttendanceEntry> attendanceEntries) {
         this.attendanceEntries = attendanceEntries;
     }
 

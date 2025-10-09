@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,16 +18,14 @@ import gr.ihu.eparousiologio.R;
 import gr.ihu.eparousiologio.adapter.CourseAdapter;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.CourseNote;
-import gr.ihu.eparousiologio.model.NewAttendanceSnapshot;
+import gr.ihu.eparousiologio.model.AttendanceSnapshot;
 import gr.ihu.eparousiologio.model.Section;
-import gr.ihu.eparousiologio.repository.AttendanceDAO;
-import gr.ihu.eparousiologio.repository.AttendanceRepository;
 import gr.ihu.eparousiologio.repository.CourseSectionDAO;
 import gr.ihu.eparousiologio.repository.CourseSectionRepository;
-import gr.ihu.eparousiologio.repository.NewAttendanceDAO;
+import gr.ihu.eparousiologio.repository.AttendanceDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
-import gr.ihu.eparousiologio.util.ExcelExporterNew;
+import gr.ihu.eparousiologio.util.ExcelExporter;
 import gr.ihu.eparousiologio.util.MediaStoreFileSaver;
 import gr.ihu.eparousiologio.util.OnResultListener;
 import gr.ihu.eparousiologio.view.MainActivity;
@@ -37,9 +34,8 @@ public class ChooseCourseSectionToExportExcelFragment extends Fragment {
 
     private final CourseSectionDAO courseSectionDAO = new CourseSectionDAO();
     View rootView;
-    AttendanceRepository attendanceRepo = new AttendanceDAO();
     CourseAdapter courseAdapter;
-    NewAttendanceDAO newAttendanceDAO = new NewAttendanceDAO();
+    AttendanceDAO attendanceDAO = new AttendanceDAO();
     CourseSectionRepository courseRepo = new CourseSectionDAO();
     StudentRecordsRepositoryDAO studentRecordsRepositoryDAO = new StudentRecordsRepositoryDAO();
 
@@ -75,12 +71,14 @@ public class ChooseCourseSectionToExportExcelFragment extends Fragment {
             );
 
             // 1) Φέρε snapshots (νέα λογική)
-            newAttendanceDAO.fetchAllCourseAttendanceSnapshots(course.getCourseId(), new OnResultListener<List<NewAttendanceSnapshot>>() {
-                @Override public void onSuccess(List<NewAttendanceSnapshot> snapshots) {
+            attendanceDAO.fetchAllCourseAttendanceSnapshots(course.getCourseId(), new OnResultListener<List<AttendanceSnapshot>>() {
+                @Override
+                public void onSuccess(List<AttendanceSnapshot> snapshots) {
 
                     // 2) Φέρε sections (για τίτλο εργαστηρίου & roster)
                     courseRepo.getAllSectionsByCourseId(course.getCourseId(), new OnResultListener<List<Section>>() {
-                        @Override public void onSuccess(List<Section> sections) {
+                        @Override
+                        public void onSuccess(List<Section> sections) {
                             Map<String, Section> sectionsByLabId = new HashMap<>();
                             if (sections != null) {
                                 for (Section s : sections) {
@@ -90,13 +88,14 @@ public class ChooseCourseSectionToExportExcelFragment extends Fragment {
 
                             // 3) Φέρε ΟΛΕΣ τις σημειώσεις του μαθήματος (course-wide)
                             courseSectionDAO.getCourseNotesByCourseId(course.getCourseId(), new OnResultListener<List<CourseNote>>() {
-                                @Override public void onSuccess(List<CourseNote> courseNotes) {
+                                @Override
+                                public void onSuccess(List<CourseNote> courseNotes) {
                                     try {
                                         MediaStoreFileSaver saver = new MediaStoreFileSaver(requireContext());
                                         String fileName = "eParousiologio_" + course.getTitle() + ".xlsx";
 
                                         // 4) ΚΑΛΕΣΕ το exporter που δέχεται Output
-                                        ExcelExporterNew.exportCourseNew(
+                                        ExcelExporter.exportCourseNew(
                                                 course,
                                                 sectionsByLabId,
                                                 snapshots,
@@ -120,7 +119,8 @@ public class ChooseCourseSectionToExportExcelFragment extends Fragment {
                                     }
                                 }
 
-                                @Override public void onFailure(Exception e) {
+                                @Override
+                                public void onFailure(Exception e) {
                                     requireActivity().runOnUiThread(() ->
                                             CustomToast.showError(requireActivity(), "Σφάλμα σημειώσεων: " + e.getMessage())
                                     );
@@ -128,7 +128,8 @@ public class ChooseCourseSectionToExportExcelFragment extends Fragment {
                             });
                         }
 
-                        @Override public void onFailure(Exception e) {
+                        @Override
+                        public void onFailure(Exception e) {
                             requireActivity().runOnUiThread(() ->
                                     CustomToast.showError(requireActivity(), "Σφάλμα sections: " + e.getMessage())
                             );
@@ -136,7 +137,8 @@ public class ChooseCourseSectionToExportExcelFragment extends Fragment {
                     });
                 }
 
-                @Override public void onFailure(Exception e) {
+                @Override
+                public void onFailure(Exception e) {
                     requireActivity().runOnUiThread(() ->
                             CustomToast.showError(requireActivity(), "Σφάλμα παρουσιών: " + e.getMessage())
                     );

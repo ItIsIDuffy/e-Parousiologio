@@ -21,10 +21,10 @@ import java.util.List;
 import gr.ihu.eparousiologio.R;
 import gr.ihu.eparousiologio.adapter.DailyAttendanceAdapter;
 import gr.ihu.eparousiologio.model.LiveCourse;
-import gr.ihu.eparousiologio.model.NewAttendanceEntry;
-import gr.ihu.eparousiologio.model.NewAttendanceSnapshot;
+import gr.ihu.eparousiologio.model.AttendanceEntry;
+import gr.ihu.eparousiologio.model.AttendanceSnapshot;
 import gr.ihu.eparousiologio.model.Student;
-import gr.ihu.eparousiologio.repository.NewAttendanceDAO;
+import gr.ihu.eparousiologio.repository.AttendanceDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -33,7 +33,7 @@ import gr.ihu.eparousiologio.view.MainActivity;
 public class DailyAttendanceRecordFragment extends Fragment {
     private static final String ARG_FRAGMENT_LIVE_COURSE = "liveCourse";
     private final StudentRecordsRepositoryDAO studentRecordsRepositoryDAO = new StudentRecordsRepositoryDAO();
-    private final NewAttendanceDAO newAttendanceDAO = new NewAttendanceDAO();
+    private final AttendanceDAO attendanceDAO = new AttendanceDAO();
     private LiveCourse liveCourse;
     private View rootView;
     private RecyclerView dailyAttendanceRecordRV;
@@ -67,14 +67,14 @@ public class DailyAttendanceRecordFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_daily_attendance_record, container, false);
         initializeUI();
 
-        String snapshotId = NewAttendanceSnapshot.generateSnapshotId(liveCourse.getLabId());
+        String snapshotId = AttendanceSnapshot.generateSnapshotId(liveCourse.getLabId());
 
-        newAttendanceDAO.fetchAttendanceSnapshotBySnapshotId(
+        attendanceDAO.fetchAttendanceSnapshotBySnapshotId(
                 liveCourse.getCourseId(), snapshotId,
                 new OnResultListener<>() {
                     @Override
-                    public void onSuccess(NewAttendanceSnapshot snapshot) {
-                        List<NewAttendanceEntry> attendanceEntries = new ArrayList<>();
+                    public void onSuccess(AttendanceSnapshot snapshot) {
+                        List<AttendanceEntry> attendanceEntries = new ArrayList<>();
 
                         if (snapshot != null && snapshot.getAttendanceEntries() != null) {
                             attendanceEntries.addAll(snapshot.getAttendanceEntries());
@@ -91,14 +91,14 @@ public class DailyAttendanceRecordFragment extends Fragment {
                                     public void onSuccess(List<Student> students) {
                                         for (Student s : students) {
                                             boolean alreadyExists = false;
-                                            for (NewAttendanceEntry entry : attendanceEntries) {
+                                            for (AttendanceEntry entry : attendanceEntries) {
                                                 if (entry.getStudentAEM().equals(s.getStudentAEM())) {
                                                     alreadyExists = true;
                                                     break;
                                                 }
                                             }
                                             if (!alreadyExists) {
-                                                attendanceEntries.add(new NewAttendanceEntry(
+                                                attendanceEntries.add(new AttendanceEntry(
                                                         s.getStudentAEM(),
                                                         s.getFullName(),
                                                         liveCourse.getCourseId(),
@@ -120,8 +120,8 @@ public class DailyAttendanceRecordFragment extends Fragment {
                         );
 
                         dailyAttendanceRecordSubmitMB.setOnClickListener(view ->
-                                newAttendanceDAO.uploadDailyAttendanceRecord(
-                                        new NewAttendanceSnapshot(
+                                attendanceDAO.uploadDailyAttendanceRecord(
+                                        new AttendanceSnapshot(
                                                 snapshotId,
                                                 liveCourse.getCourseId(),
                                                 liveCourse.getCourseTitle(),
@@ -154,9 +154,9 @@ public class DailyAttendanceRecordFragment extends Fragment {
                                 new OnResultListener<List<Student>>() {
                                     @Override
                                     public void onSuccess(List<Student> students) {
-                                        List<NewAttendanceEntry> attendanceEntries = new ArrayList<>();
+                                        List<AttendanceEntry> attendanceEntries = new ArrayList<>();
                                         for (Student s : students) {
-                                            attendanceEntries.add(new NewAttendanceEntry(
+                                            attendanceEntries.add(new AttendanceEntry(
                                                     s.getStudentAEM(),
                                                     s.getFullName(),
                                                     liveCourse.getCourseId(),

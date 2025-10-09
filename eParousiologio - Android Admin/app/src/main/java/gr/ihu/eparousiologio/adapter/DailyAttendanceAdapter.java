@@ -16,19 +16,19 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.List;
 
 import gr.ihu.eparousiologio.R;
-import gr.ihu.eparousiologio.model.NewAttendanceEntry;
+import gr.ihu.eparousiologio.model.AttendanceEntry;
 
 public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendanceAdapter.StudentAttendanceEntryViewHolder> {
 
-    private final List<NewAttendanceEntry> attendanceEntries;
+    private final List<AttendanceEntry> attendanceEntries;
     private final Context context;
 
-    public DailyAttendanceAdapter(List<NewAttendanceEntry> attendanceEntries, Context context) {
+    public DailyAttendanceAdapter(List<AttendanceEntry> attendanceEntries, Context context) {
         this.attendanceEntries = attendanceEntries;
         this.context = context;
     }
 
-    public List<NewAttendanceEntry> getAttendanceEntries() {
+    public List<AttendanceEntry> getAttendanceEntries() {
         return attendanceEntries;
     }
 
@@ -41,7 +41,7 @@ public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendance
 
     @Override
     public void onBindViewHolder(@NonNull DailyAttendanceAdapter.StudentAttendanceEntryViewHolder holder, int position) {
-        NewAttendanceEntry student = attendanceEntries.get(position);
+        AttendanceEntry student = attendanceEntries.get(position);
 
         holder.attendanceStudentEntryAEMMTV.setText(student.getStudentAEM());
         holder.attendanceStudentEntryFullNameMTV.setText(student.getFullName());

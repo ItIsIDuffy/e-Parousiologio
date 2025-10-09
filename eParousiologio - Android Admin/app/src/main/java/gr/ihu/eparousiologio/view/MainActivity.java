@@ -30,14 +30,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        AuthManager
-                .get()
-                .signInTeacher("parousiologiodipae@gmail.com", "parousiologiodipae", () -> {
-                            //προχωράμε όλα οκ
-                        },
-                        e -> CustomToast.showError(MainActivity.this,
-                                "Αποτυχία επαλήθευσης καθηγητή, παρακαλούμε επανεκκινήστε την εφαρμογή"));
-
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()

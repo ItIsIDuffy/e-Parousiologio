@@ -22,6 +22,7 @@ import gr.ihu.eparousiologio.adapter.AccessStudentRecordAdapter;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.Section;
 import gr.ihu.eparousiologio.model.Student;
+import gr.ihu.eparousiologio.repository.CourseSectionDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -99,7 +100,17 @@ public class AccessStudentsRecordListFragment extends Fragment {
                 studentRecordsRepositoryDAO.deleteStudentFromSection(course.getCourseId(), section.getLabId(), student, new OnResultListener<>() {
                     @Override
                     public void onSuccess(Void result) {
-                        CustomToast.showSuccess(requireActivity(), "Επιτυχία διαγραφής");
+                        new CourseSectionDAO().addNoteOnCourse(course.getCourseId(), "ΔΙΑΓΡΑΦΗ ΦΟΙΤΗΤΗ: " + student.getStudentAEM() + " από τμήμα " + section.getName(), new OnResultListener<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                CustomToast.showSuccess(requireActivity(), "Επιτυχία διαγραφής");
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                CustomToast.showSuccess(requireActivity(), "Επιτυχία διαγραφής");
+                            }
+                        });
                     }
 
                     @Override

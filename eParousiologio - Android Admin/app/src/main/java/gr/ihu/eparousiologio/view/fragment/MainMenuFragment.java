@@ -37,12 +37,20 @@ import gr.ihu.eparousiologio.view.MainActivity;
 
 public class MainMenuFragment extends Fragment {
 
-    Context context;
-    LiveCourseRepositoryDAO liveCourseRepository = new LiveCourseRepositoryDAO();
-    ListenerRegistration liveCourse = null;
-    Group actionsGroup;
+    private Context context;
+    private LiveCourseRepositoryDAO liveCourseRepository = new LiveCourseRepositoryDAO();
+    private ListenerRegistration liveCourse = null;
+    private Group actionsGroup;
     private View rootView;
-    private MaterialButton accessStudentRecordMB, importStudentRecordMB, selectCurrentSectionMB, exportAttendanceMB, addNoteToSectionMB, saveAttendanceForTodayMB, clearCourseMB;
+
+    private MaterialButton accessStudentRecordMB,
+            importStudentRecordMB,
+            selectCurrentSectionMB,
+            exportAttendanceMB,
+            addNoteToSectionMB,
+            saveAttendanceForTodayMB,
+            clearCourseMB;
+
     private MaterialTextView currentCourseMTV, currentSectionMTV;
     private ActivityResultLauncher<Intent> elabsTextFileLauncher;
     private ActivityResultLauncher<String> writePermLauncher;
@@ -67,32 +75,34 @@ public class MainMenuFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_main_menu, container, false);
 
-        elabsTextFileLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                Uri uri = result.getData().getData();
-                ensureTeacherAndImport(uri);
-            }
-        });
+        // file picker launcher
+        elabsTextFileLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        importStudentRecord(uri);
+                    }
+                });
 
-        writePermLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
-            if (granted) {
-                if (isAdded()) {
-                    ((MainActivity) requireActivity()).addFragment(ChooseCourseSectionToExportExcelFragment.newInstance());
-                }
-            } else {
-                if (isAdded()) {
-                    CustomToast.showError(requireActivity(), "Η άδεια αποθήκευσης δεν δόθηκε. Η εξαγωγή σε Excel δεν μπορεί να συνεχιστεί.");
-                }
-            }
-        });
+        // permission launcher (for Excel export)
+        writePermLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                granted -> {
+                    if (!isAdded()) return;
+
+                    if (granted) {
+                        ((MainActivity) requireActivity())
+                                .addFragment(ChooseCourseSectionToExportExcelFragment.newInstance());
+                    } else {
+                        CustomToast.showError(requireActivity(),
+                                "Η άδεια αποθήκευσης δεν δόθηκε. Η εξαγωγή σε Excel δεν μπορεί να συνεχιστεί.");
+                    }
+                });
 
         initializeUI();
 
         return rootView;
-    }
-
-    private void ensureTeacherAndImport(Uri uri) {
-        AuthManager.get().signInTeacher("parousiologiodipae@gmail.com", "parousiologiodipae", () -> readTextFromUri(uri), e -> CustomToast.showError(requireActivity(), "Αποτυχία σύνδεσης καθηγητή: " + e.getMessage()));
     }
 
     private void initializeUI() {
@@ -107,46 +117,58 @@ public class MainMenuFragment extends Fragment {
         addNoteToSectionMB = rootView.findViewById(R.id.addNoteToSectionMB);
         clearCourseMB = rootView.findViewById(R.id.clearCourseMB);
 
-        accessStudentRecordMB.setOnClickListener(view -> {
-            if (isAdded()) {
-                ((MainActivity) requireActivity()).addFragment(SelectCourseSectionToViewStudentsFragment.newInstance());
-            }
-        });
+        // Προβολή μαθημάτων
+        accessStudentRecordMB.setOnClickListener(v ->
+                ((MainActivity) requireActivity())
+                        .addFragment(SelectCourseSectionToViewStudentsFragment.newInstance())
+        );
 
-        importStudentRecordMB.setOnClickListener(view -> {
-            if (isAdded()) {
-                openFilePicker();
-            }
-        });
+        // Εισαγωγή αρχείου φοιτητών
+        importStudentRecordMB.setOnClickListener(v ->
+                AuthManager.get().ensureTeacherSignedIn(this::openFilePicker,
+                        e -> CustomToast.showError(requireActivity(),
+                                "Αποτυχία σύνδεσης: " + e.getMessage()))
+        );
 
-        selectCurrentSectionMB.setOnClickListener(view -> {
-            if (isAdded()) {
-                ((MainActivity) requireActivity()).addFragment(SelectLiveCourseSectionFragment.newInstance());
-            }
-        });
+        // Επιλογή ενεργού τμήματος
+        selectCurrentSectionMB.setOnClickListener(v ->
+                ((MainActivity) requireActivity())
+                        .addFragment(SelectLiveCourseSectionFragment.newInstance())
+        );
 
-        exportAttendanceMB.setOnClickListener(view -> {
+        // Εξαγωγή παρουσιών σε Excel
+        exportAttendanceMB.setOnClickListener(v -> {
             if (!isAdded()) return;
 
-            if (Build.VERSION.SDK_INT == 28) {
-                int hasWrite = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-                if (hasWrite == PackageManager.PERMISSION_GRANTED) {
-                    ((MainActivity) requireActivity()).addFragment(ChooseCourseSectionToExportExcelFragment.newInstance());
+            AuthManager.get().ensureTeacherSignedIn(() -> {
+                if (Build.VERSION.SDK_INT == 28) {
+                    int hasWrite = ContextCompat.checkSelfPermission(
+                            requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if (hasWrite == PackageManager.PERMISSION_GRANTED) {
+                        ((MainActivity) requireActivity())
+                                .addFragment(ChooseCourseSectionToExportExcelFragment.newInstance());
+                    } else {
+                        writePermLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    }
                 } else {
-                    writePermLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    ((MainActivity) requireActivity())
+                            .addFragment(ChooseCourseSectionToExportExcelFragment.newInstance());
                 }
-            } else {
-                ((MainActivity) requireActivity()).addFragment(ChooseCourseSectionToExportExcelFragment.newInstance());
-            }
+            }, e -> CustomToast.showError(requireActivity(),
+                    "Αποτυχία επαλήθευσης: " + e.getMessage()));
         });
 
         resetUIForNoCourse();
     }
 
-    private void readTextFromUri(Uri uri) {
+    // Διαβάζει αρχείο κειμένου φοιτητών
+    private void importStudentRecord(Uri uri) {
         if (context == null) return;
-        new FileReaderUtil(context).readTextFromUri(uri);
+
+        AuthManager.get().ensureTeacherSignedIn(() ->
+                        new FileReaderUtil(context).readTextFromUri(uri),
+                e -> CustomToast.showError(requireActivity(),
+                        "Αποτυχία σύνδεσης καθηγητή: " + e.getMessage()));
     }
 
     private void openFilePicker() {
@@ -169,57 +191,72 @@ public class MainMenuFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        liveCourse = liveCourseRepository.getLiveCourse(new OnResultListener<>() {
-            @Override
-            public void onSuccess(LiveCourse liveCourse) {
-                if (!isAdded()) return;
+        AuthManager.get().ensureTeacherSignedIn(() -> {
 
-                currentCourseMTV.setText(getString(R.string.current_course, liveCourse.getCourseTitle()));
-                currentSectionMTV.setText(getString(R.string.current_section, liveCourse.getLabName()));
+            liveCourse = liveCourseRepository.getLiveCourse(new OnResultListener<>() {
+                @Override
+                public void onSuccess(LiveCourse liveCourse) {
+                    if (!isAdded()) return;
 
-                actionsGroup.setVisibility(View.VISIBLE);
+                    currentCourseMTV.setText(getString(R.string.current_course, liveCourse.getCourseTitle()));
+                    currentSectionMTV.setText(getString(R.string.current_section, liveCourse.getLabName()));
 
-                saveAttendanceForTodayMB.setOnClickListener(view -> {
-                    ((MainActivity) requireActivity()).addFragment(DailyAttendanceRecordFragment.newInstance(liveCourse));
-                });
+                    actionsGroup.setVisibility(View.VISIBLE);
 
-                addNoteToSectionMB.setOnClickListener(view -> {
-                    AddSectionNoteSheet addSectionNoteSheet = new AddSectionNoteSheet(liveCourse);
-                    addSectionNoteSheet.show(getParentFragmentManager(), "AddSectionNoteSheet");
-                });
+                    saveAttendanceForTodayMB.setOnClickListener(v ->
+                            AuthManager.get().ensureTeacherSignedIn(() ->
+                                    ((MainActivity) requireActivity())
+                                            .addFragment(DailyAttendanceRecordFragment.newInstance(liveCourse)))
+                    );
 
-                clearCourseMB.setOnClickListener(view -> {
-                    liveCourseRepository.deleteLiveCourse(new OnResultListener<>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            resetUIForNoCourse();
-                        }
+                    addNoteToSectionMB.setOnClickListener(v ->
+                            AuthManager.get().ensureTeacherSignedIn(() -> {
+                                AddSectionNoteSheet addSectionNoteSheet = new AddSectionNoteSheet(liveCourse);
+                                addSectionNoteSheet.show(getParentFragmentManager(), "AddSectionNoteSheet");
+                            })
+                    );
 
-                        @Override
-                        public void onFailure(Exception e) {
-                            CustomToast.showError(requireActivity(), e.getMessage());
-                        }
-                    });
-                });
-            }
+                    clearCourseMB.setOnClickListener(v ->
+                            AuthManager.get().ensureTeacherSignedIn(() ->
+                                    liveCourseRepository.deleteLiveCourse(new OnResultListener<>() {
+                                        @Override
+                                        public void onSuccess(Void result) {
+                                            resetUIForNoCourse();
+                                        }
 
-            @Override
-            public void onFailure(Exception e) {
-                if (!isAdded()) return;
-
-                if (Objects.equals(e.getMessage(), "Δεν υπάρχει ενεργό μάθημα.")) {
-                    resetUIForNoCourse();
-                } else {
-                    CustomToast.showError(requireActivity(), e.getMessage());
+                                        @Override
+                                        public void onFailure(Exception e) {
+                                            CustomToast.showError(requireActivity(), e.getMessage());
+                                        }
+                                    })
+                            )
+                    );
                 }
+
+                @Override
+                public void onFailure(Exception e) {
+                    if (!isAdded()) return;
+
+                    if (Objects.equals(e.getMessage(), "Δεν υπάρχει ενεργό μάθημα.")) {
+                        resetUIForNoCourse();
+                    } else {
+                        CustomToast.showError(requireActivity(), e.getMessage());
+                    }
+                }
+            });
+
+        }, e -> {
+            if (isAdded()) {
+                CustomToast.showError(requireActivity(),
+                        "Αποτυχία σύνδεσης κατά την εκκίνηση: " + e.getMessage());
             }
         });
     }
 
+
     private void resetUIForNoCourse() {
         currentCourseMTV.setText(getString(R.string.current_course, "-"));
         currentSectionMTV.setText(getString(R.string.current_section, "-"));
-
         actionsGroup.setVisibility(View.GONE);
     }
 }
