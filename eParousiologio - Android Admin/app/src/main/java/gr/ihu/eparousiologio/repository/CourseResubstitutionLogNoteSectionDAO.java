@@ -6,6 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -181,18 +183,30 @@ public class CourseResubstitutionLogNoteSectionDAO implements CourseSectionRepos
 
     @Override
     public void checkIfAlreadyExistingResubstitution(String courseId, String aem, String labId, OnResultListener<Void> listener) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date startOfToday = cal.getTime();
+
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        Date startOfTomorrow = cal.getTime();
+
         db.collection(COLLECTION_NAME_COURSES)
                 .document(courseId)
                 .collection(COLLECTION_NAME_NOTES)
                 .whereEqualTo("aem", aem)
                 .whereEqualTo("labId", labId)
                 .whereEqualTo("isLog", false)
+                .whereGreaterThanOrEqualTo("createdAt", startOfToday)
+                .whereLessThan("createdAt", startOfTomorrow)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
                         listener.onSuccess(null);
                     } else {
-                        listener.onFailure(new Exception("Ο " + aem + " έχει ήδη δηλωθεί προς αναπλήρωση."));
+                        listener.onFailure(new Exception("έχει ήδη δηλωθεί προς αναπλήρωση."));
                     }
                 })
                 .addOnFailureListener(listener::onFailure);
