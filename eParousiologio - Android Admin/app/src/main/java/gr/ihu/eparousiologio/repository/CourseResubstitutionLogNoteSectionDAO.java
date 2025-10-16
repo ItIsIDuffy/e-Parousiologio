@@ -95,17 +95,27 @@ public class CourseResubstitutionLogNoteSectionDAO implements CourseSectionRepos
 
     @Override
     public void addResubstitutionNoteOnCourse(String courseId, String aem, String labId, String labName, OnResultListener<Void> listener) {
-        String note = "Aναπλήρωσε στο " + labName;
-        addResubstitutionNoteOnCourse(courseId, note, aem, labId)
-                .thenRun(() -> listener.onSuccess(null))
-                .exceptionally(throwable -> {
-                    if (throwable instanceof Exception) {
-                        listener.onFailure((Exception) throwable);
-                    } else {
-                        listener.onFailure(new Exception(throwable));
-                    }
-                    return null;
-                });
+        this.checkIfAlreadyExistingResubstitution(courseId, aem, labId, new OnResultListener<>() {
+            @Override
+            public void onSuccess(Void result) {
+                String note = "Aναπλήρωσε στο " + labName;
+                addResubstitutionNoteOnCourse(courseId, note, aem, labId)
+                        .thenRun(() -> listener.onSuccess(null))
+                        .exceptionally(throwable -> {
+                            if (throwable instanceof Exception) {
+                                listener.onFailure((Exception) throwable);
+                            } else {
+                                listener.onFailure(new Exception(throwable));
+                            }
+                            return null;
+                        });
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+                listener.onFailure(exception);
+            }
+        });
     }
 
     private CompletableFuture<Void> addResubstitutionNoteOnCourse(String courseId, String note, String aem, String labId) {
@@ -169,6 +179,24 @@ public class CourseResubstitutionLogNoteSectionDAO implements CourseSectionRepos
         return future;
     }
 
+    @Override
+    public void checkIfAlreadyExistingResubstitution(String courseId, String aem, String labId, OnResultListener<Void> listener) {
+        db.collection(COLLECTION_NAME_COURSES)
+                .document(courseId)
+                .collection(COLLECTION_NAME_NOTES)
+                .whereEqualTo("aem", aem)
+                .whereEqualTo("labId", labId)
+                .whereEqualTo("isLog", false)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        listener.onSuccess(null);
+                    } else {
+                        listener.onFailure(new Exception("Ο " + aem + " έχει ήδη δηλωθεί προς αναπλήρωση."));
+                    }
+                })
+                .addOnFailureListener(listener::onFailure);
+    }
 
     @Override
     public void getCourseNotesByCourseId(String courseId, OnResultListener<List<CourseNote>> listener) {

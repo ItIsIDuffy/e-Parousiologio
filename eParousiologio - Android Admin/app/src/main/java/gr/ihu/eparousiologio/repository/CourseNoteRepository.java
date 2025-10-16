@@ -9,5 +9,6 @@ public interface CourseNoteRepository {
     void addLogOnCourse(String courseId, String log, OnResultListener<Void> listener);
     void addNoteOnCourse(String courseId, String note, OnResultListener<Void> listener);
     void addResubstitutionNoteOnCourse(String courseId, String aem, String labId, String labName, OnResultListener<Void> listener);
+    void checkIfAlreadyExistingResubstitution(String courseId, String aem, String labId, OnResultListener<Void> listener);
     void getCourseNotesByCourseId(String courseId, OnResultListener<List<CourseNote>> listener);
 }

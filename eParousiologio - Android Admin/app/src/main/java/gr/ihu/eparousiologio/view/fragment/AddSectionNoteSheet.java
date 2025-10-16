@@ -89,7 +89,7 @@ public class AddSectionNoteSheet extends BottomSheetDialogFragment {
                 courseSectionDAO.addResubstitutionNoteOnCourse(
                         liveCourse.getCourseId(),
                         noteText,
-                        liveCourse.getLabName(),
+                        liveCourse.getLabId(),
                         liveCourse.getLabName(),
                         new OnResultListener<>() {
                             @Override
@@ -109,7 +109,10 @@ public class AddSectionNoteSheet extends BottomSheetDialogFragment {
                                 } else if (msg.contains("δεν ανήκει σε κανένα εργαστήριο")) {
                                     dismiss();
                                     CustomToast.showWarning(requireActivity(), "O " + noteText + " δεν ανήκει σε κανένα εργαστήριο.");
-                                } else {
+                                } else if (msg.contains("έχει ήδη δηλωθεί προς αναπλήρωση.")) {
+                                    dismiss();
+                                    CustomToast.showWarning(requireActivity(), "O " + noteText + " έχει ήδη δηλωθεί προς αναπλήρωση.");
+                                }else{
                                     dismiss();
                                     CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης αναπλήρωσης");
                                 }
