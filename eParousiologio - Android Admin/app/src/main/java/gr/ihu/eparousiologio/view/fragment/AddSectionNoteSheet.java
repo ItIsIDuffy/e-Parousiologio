@@ -5,7 +5,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,19 +24,19 @@ import java.util.Objects;
 
 import gr.ihu.eparousiologio.R;
 import gr.ihu.eparousiologio.model.LiveCourse;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
 
 public class AddSectionNoteSheet extends BottomSheetDialogFragment {
 
+    private final CourseResubstitutionLogNoteSectionDAO courseSectionDAO = new CourseResubstitutionLogNoteSectionDAO();
     private View rootView;
     private LiveCourse liveCourse;
     private MaterialTextView addSectionNoteCourseMTV, addSectionNoteSectionMTV;
     private MaterialButton addSectionNoteSubmitMB;
     private TextInputLayout addSectionNoteTIL;
     private TextInputEditText addSectionNoteTIET;
-    private final CourseSectionDAO courseSectionDAO = new CourseSectionDAO();
 
     public AddSectionNoteSheet(LiveCourse liveCourse) {
         this.liveCourse = liveCourse;
@@ -73,27 +72,80 @@ public class AddSectionNoteSheet extends BottomSheetDialogFragment {
         setUpTextWatcher(addSectionNoteTIET);
 
         addSectionNoteSubmitMB.setOnClickListener(view -> {
+            view.setEnabled(false);
             String noteText = Objects.requireNonNull(addSectionNoteTIET.getText()).toString().trim();
 
             if (noteText.isEmpty()) {
                 addSectionNoteTIL.setError("Συμπληρώστε το πεδίο σημείωσης");
                 addSectionNoteTIL.setErrorEnabled(true);
+                view.setEnabled(true);
                 return;
             }
 
-            courseSectionDAO.addNoteOnCourse(liveCourse.getCourseId(), noteText, new OnResultListener<>() {
-                @Override
-                public void onSuccess(Void result) {
-                    addSectionNoteTIET.setText("");
-                    dismiss();
-                }
+            addSectionNoteTIL.setError(null);
+            addSectionNoteTIL.setErrorEnabled(false);
 
-                @Override
-                public void onFailure(Exception e) {
-                    CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης");
-                }
-            });
+            if (isAemLike(noteText)) {
+                courseSectionDAO.addResubstitutionNoteOnCourse(
+                        liveCourse.getCourseId(),
+                        noteText,
+                        liveCourse.getLabName(),
+                        liveCourse.getLabName(),
+                        new OnResultListener<>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                addSectionNoteTIET.setText("");
+                                dismiss();
+                                CustomToast.showSuccess(requireActivity(), "O " + noteText + " καταχωρήθηκε προς αναπλήρωση.");
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                String msg = e.getMessage() != null ? e.getMessage().trim() : "";
+
+                                if (msg.contains("ανήκει ήδη στο τρέχον τμήμα")) {
+                                    dismiss();
+                                    CustomToast.showWarning(requireActivity(), "O " + noteText + " ανήκει ήδη στο τρέχον τμήμα. Καταχωρήστε παρουσία από τη λίστα παρουσιών.");
+                                } else if (msg.contains("δεν ανήκει σε κανένα εργαστήριο")) {
+                                    dismiss();
+                                    CustomToast.showWarning(requireActivity(), "O " + noteText + " δεν ανήκει σε κανένα εργαστήριο.");
+                                } else {
+                                    dismiss();
+                                    CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης αναπλήρωσης");
+                                }
+                            }
+                        });
+            } else {
+                courseSectionDAO.addNoteOnCourse(
+                        liveCourse.getCourseId(),
+                        noteText,
+                        new OnResultListener<>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                addSectionNoteTIET.setText("");
+                                dismiss();
+                                CustomToast.showSuccess(requireActivity(), "Επιτυχής προσθήκη σημείωσης.");
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                dismiss();
+                                CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης");
+                            }
+                        });
+            }
         });
+
+    }
+
+    private boolean isAemLike(String text) {
+        if (!text.matches("\\d{1,5}")) return false;
+        try {
+            int value = Integer.parseInt(text);
+            return value >= 1 && value <= 99999;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private void setUpTextWatcher(TextInputEditText textInputEditText) {

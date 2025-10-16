@@ -17,7 +17,7 @@ import gr.ihu.eparousiologio.adapter.CourseSectionAdapter;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.Section;
 import gr.ihu.eparousiologio.model.Student;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -27,7 +27,7 @@ public class SectionsToSwapStudentsFragment extends Fragment {
     private static final String ARG_FRAGMENT_COURSE = "course";
     private static final String ARG_FRAGMENT_SECTION = "section";
     private static final String ARG_FRAGMENT_STUDENT_TO_SWAP = "studentToSwap";
-    private final CourseSectionDAO courseSectionDAO = new CourseSectionDAO();
+    private final CourseResubstitutionLogNoteSectionDAO courseSectionDAO = new CourseResubstitutionLogNoteSectionDAO();
     private final StudentRecordsRepositoryDAO studentRecordsRepositoryDAO = new StudentRecordsRepositoryDAO();
     View rootView;
     private Student studentToSwap;

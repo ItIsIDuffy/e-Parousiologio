@@ -39,6 +39,7 @@ public class CustomToast {
         tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         tv.setTextColor(textColor);
+        tv.setMaxLines(3);
 
         if (iconRes != 0) {
             int padding = (int) TypedValue.applyDimension(

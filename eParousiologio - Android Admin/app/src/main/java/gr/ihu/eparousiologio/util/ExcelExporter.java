@@ -30,10 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import gr.ihu.eparousiologio.model.Course;
-import gr.ihu.eparousiologio.model.CourseNote;
 import gr.ihu.eparousiologio.model.AttendanceEntry;
 import gr.ihu.eparousiologio.model.AttendanceSnapshot;
+import gr.ihu.eparousiologio.model.Course;
+import gr.ihu.eparousiologio.model.CourseNote;
 import gr.ihu.eparousiologio.model.Section;
 import gr.ihu.eparousiologio.model.Student;
 
@@ -174,7 +174,25 @@ public final class ExcelExporter {
                     String name = nz(aemToName.get(aem));
                     int sessionsTotal = sortedSnaps.size();
                     int presentCount = 0;
-                    for (Set<String> set : presentBySnap) if (set.contains(aem)) presentCount++;
+                    for (Set<String> set : presentBySnap) {
+                        if (set.contains(aem)) presentCount++;
+                    }
+
+                    if (courseNotes != null && !courseNotes.isEmpty()) {
+                        long extraPresences = courseNotes.stream()
+                                .filter(n -> n != null)
+                                .filter(n -> !Boolean.TRUE.equals(n.isLog()))
+                                .filter(n -> nz(n.getLabId()).equalsIgnoreCase(nz(labId)))
+                                .filter(n -> nz(n.getAem()).equalsIgnoreCase(nz(aem)))
+                                .map(n -> new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                        .format(n.getCreatedAt()))
+                                // κρατάμε μόνο 1 αναπλήρωση ανά μέρα
+                                .distinct()
+                                .count();
+
+                        presentCount += (int) extraPresences;
+                    }
+
                     String presStr = presentCount + " / " + sessionsTotal;
 
                     createCell(r, 0, aem, normal);
@@ -200,49 +218,178 @@ public final class ExcelExporter {
                     if (width < 8 * 256) width = 8 * 256;
                     sh.setColumnWidth(c, width);
                 }
+
+                // --- ΝΕΟΣ ΠΙΝΑΚΑΣ ΑΝΑΠΛΗΡΩΣΕΙΣ ---
+                if (courseNotes != null && !courseNotes.isEmpty()) {
+                    List<CourseNote> replacements = courseNotes.stream()
+                            .filter(n -> n != null)
+                            .filter(n -> !Boolean.TRUE.equals(n.isLog()))
+                            .filter(n -> nz(n.getLabId()).equalsIgnoreCase(nz(labId)))
+                            .filter(n -> !nz(n.getAem()).isEmpty())
+                            .sorted(Comparator.comparing(CourseNote::getCreatedAt, Comparator.nullsLast(Date::compareTo)))
+                            .collect(Collectors.toList());
+
+                    System.out.println("LabId: " + labId + " -> replacements found: " + replacements.size());
+
+                    if (!replacements.isEmpty()) {
+
+                        // Ομαδοποιούμε ανά ημέρα και φοιτητή -> κρατάμε την πιο πρόσφατη κάθε ημέρας
+                        Map<String, Map<String, CourseNote>> byDateAndAem = new LinkedHashMap<>();
+
+                        for (CourseNote note : replacements) {
+                            if (note.getCreatedAt() == null) continue;
+                            String dateKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                    .format(note.getCreatedAt()); // ΜΟΝΟ ημερομηνία
+                            String aemKey = note.getAem();
+
+                            byDateAndAem.putIfAbsent(dateKey, new LinkedHashMap<>());
+                            Map<String, CourseNote> byAem = byDateAndAem.get(dateKey);
+
+                            // Αν υπάρχει ήδη, κράτα την πιο πρόσφατη createdAt
+                            if (!byAem.containsKey(aemKey)
+                                    || (note.getCreatedAt().after(byAem.get(aemKey).getCreatedAt()))) {
+                                byAem.put(aemKey, note);
+                            }
+                        }
+
+                        // Ταξινομημένες ημερομηνίες
+                        List<String> dateKeys = new ArrayList<>(byDateAndAem.keySet());
+                        Collections.sort(dateKeys);
+
+                        // Συλλογή φοιτητών που έχουν έστω μία αναπλήρωση
+                        Set<String> aemsWithNotes = byDateAndAem.values().stream()
+                                .flatMap(m -> m.keySet().stream())
+                                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+                        int replStartRow = sh.getLastRowNum() + 2;
+                        Row replHeader = getOrCreateRow(sh, replStartRow);
+                        createCell(replHeader, 0, "ΑΝΑΠΛΗΡΩΣΕΙΣ", header);
+
+                        int colIdx = 1;
+                        for (String dateStr : dateKeys) {
+                            createCell(replHeader, colIdx, dateStr, header);
+                            colIdx++;
+                        }
+
+                        int replRow = replStartRow + 1;
+                        for (String aem : aemsWithNotes) {
+                            Row rr = getOrCreateRow(sh, replRow++);
+                            createCell(rr, 0, aem, normal);
+
+                            int c = 1;
+                            for (String dateStr : dateKeys) {
+                                CourseNote note = byDateAndAem.getOrDefault(dateStr, Collections.emptyMap()).get(aem);
+                                String msg = (note != null) ? note.getMessage() : "";
+                                createCell(rr, c, msg, normal);
+                                c++;
+                            }
+                        }
+
+                    }
+
+                }
             }
 
-            String notesSheetName = WorkbookUtil.createSafeSheetName("ΣΗΜΕΙΩΣΕΙΣ");
-            Sheet notesSheet = wb.createSheet(notesSheetName);
-            Map<Integer, Integer> notesColMax = new LinkedHashMap<>();
-            AtomicInteger notesMaxCol = new AtomicInteger(0);
-            BiConsumer<Integer, String> nfit = (column, text) -> {
-                int len = (text == null) ? 0 : text.length();
-                notesColMax.merge(column, len, Math::max);
-                notesMaxCol.updateAndGet(prev -> Math.max(prev, column));
-            };
+            // --- SHEET ΣΗΜΕΙΩΣΕΙΣ & LOGS ---
+            List<CourseNote> allNotes = courseNotes == null
+                    ? Collections.emptyList()
+                    : new ArrayList<>(courseNotes);
 
-            Row titleRow = getOrCreateRow(notesSheet, 0);
-            createCell(titleRow, 0, "ΣΗΜΕΙΩΣΕΙΣ", bold);
-            nfit.accept(0, "ΣΗΜΕΙΩΣΕΙΣ");
+            List<CourseNote> normalNotes = allNotes.stream()
+                    .filter(n -> n != null
+                            && !Boolean.TRUE.equals(n.isLog())
+                            && (n.getAem() == null || n.getLabId() == null))
+                    .collect(Collectors.toList());
 
-            List<CourseNote> notes = courseNotes == null ? Collections.emptyList() : new ArrayList<>(courseNotes);
-            notes.sort((n1, n2) -> {
+            List<CourseNote> logNotes = allNotes.stream()
+                    .filter(n -> n != null
+                            && Boolean.TRUE.equals(n.isLog())
+                            && (n.getAem() == null || n.getLabId() == null))
+                    .collect(Collectors.toList());
+
+            Comparator<CourseNote> byDate = (n1, n2) -> {
                 Date d1 = n1 != null ? n1.getCreatedAt() : null;
                 Date d2 = n2 != null ? n2.getCreatedAt() : null;
                 if (d1 == null && d2 == null) return 0;
                 if (d1 == null) return -1;
                 if (d2 == null) return 1;
                 return d1.compareTo(d2);
-            });
+            };
+            normalNotes.sort(byDate);
+            logNotes.sort(byDate);
 
-            int nrow = 1;
-            for (CourseNote n : notes) {
-                Row nr = getOrCreateRow(notesSheet, nrow++);
-                String ts = n != null && n.getCreatedAt() != null ? DATE_FMT.format(n.getCreatedAt()) : "";
-                String msg = (n != null && n.getMessage() != null) ? n.getMessage() : "";
-                createCell(nr, 0, ts, normal);
-                createCell(nr, 1, msg, normal);
-                nfit.accept(0, ts);
-                nfit.accept(1, msg);
+            if (!normalNotes.isEmpty()) {
+                String notesSheetName = WorkbookUtil.createSafeSheetName("ΣΗΜΕΙΩΣΕΙΣ");
+                Sheet notesSheet = wb.createSheet(notesSheetName);
+                Map<Integer, Integer> notesColMax = new LinkedHashMap<>();
+                AtomicInteger notesMaxCol = new AtomicInteger(0);
+                BiConsumer<Integer, String> nfit = (column, text) -> {
+                    int len = (text == null) ? 0 : text.length();
+                    notesColMax.merge(column, len, Math::max);
+                    notesMaxCol.updateAndGet(prev -> Math.max(prev, column));
+                };
+
+                Row titleRow = getOrCreateRow(notesSheet, 0);
+                createCell(titleRow, 0, "ΗΜΕΡΟΜΗΝΙΑ", header);
+                createCell(titleRow, 1, "ΣΗΜΕΙΩΣΗ", header);
+                nfit.accept(0, "ΗΜΕΡΟΜΗΝΙΑ");
+                nfit.accept(1, "ΣΗΜΕΙΩΣΗ");
+
+                int nrow = 1;
+                for (CourseNote n : normalNotes) {
+                    Row nr = getOrCreateRow(notesSheet, nrow++);
+                    String ts = n != null && n.getCreatedAt() != null ? DATE_FMT.format(n.getCreatedAt()) : "";
+                    String msg = (n != null && n.getMessage() != null) ? n.getMessage() : "";
+                    createCell(nr, 0, ts, normal);
+                    createCell(nr, 1, msg, normal);
+                    nfit.accept(0, ts);
+                    nfit.accept(1, msg);
+                }
+
+                for (int col = 0; col <= Math.max(notesMaxCol.get(), 1); col++) {
+                    int maxChars = notesColMax.getOrDefault(col, 0);
+                    int width = (maxChars + 2) * 256;
+                    if (width > 255 * 256) width = 255 * 256;
+                    if (width < 8 * 256) width = 8 * 256;
+                    notesSheet.setColumnWidth(col, width);
+                }
             }
 
-            for (int col = 0; col <= Math.max(notesMaxCol.get(), 1); col++) {
-                int maxChars = notesColMax.getOrDefault(col, 0);
-                int width = (maxChars + 2) * 256;
-                if (width > 255 * 256) width = 255 * 256;
-                if (width < 8 * 256) width = 8 * 256;
-                notesSheet.setColumnWidth(col, width);
+            if (!logNotes.isEmpty()) {
+                String logsSheetName = WorkbookUtil.createSafeSheetName("LOGS");
+                Sheet logsSheet = wb.createSheet(logsSheetName);
+                Map<Integer, Integer> logsColMax = new LinkedHashMap<>();
+                AtomicInteger logsMaxCol = new AtomicInteger(0);
+                BiConsumer<Integer, String> lfit = (column, text) -> {
+                    int len = (text == null) ? 0 : text.length();
+                    logsColMax.merge(column, len, Math::max);
+                    logsMaxCol.updateAndGet(prev -> Math.max(prev, column));
+                };
+
+                Row titleRow = getOrCreateRow(logsSheet, 0);
+                createCell(titleRow, 0, "ΗΜΕΡΟΜΗΝΙΑ", header);
+                createCell(titleRow, 1, "LOG", header);
+                lfit.accept(0, "ΗΜΕΡΟΜΗΝΙΑ");
+                lfit.accept(1, "LOG");
+
+                int lrow = 1;
+                for (CourseNote n : logNotes) {
+                    Row nr = getOrCreateRow(logsSheet, lrow++);
+                    String ts = n != null && n.getCreatedAt() != null ? DATE_FMT.format(n.getCreatedAt()) : "";
+                    String msg = (n != null && n.getMessage() != null) ? n.getMessage() : "";
+                    createCell(nr, 0, ts, normal);
+                    createCell(nr, 1, msg, normal);
+                    lfit.accept(0, ts);
+                    lfit.accept(1, msg);
+                }
+
+                for (int col = 0; col <= Math.max(logsMaxCol.get(), 1); col++) {
+                    int maxChars = logsColMax.getOrDefault(col, 0);
+                    int width = (maxChars + 2) * 256;
+                    if (width > 255 * 256) width = 255 * 256;
+                    if (width < 8 * 256) width = 8 * 256;
+                    logsSheet.setColumnWidth(col, width);
+                }
             }
 
             os = output.open(suggestedFileName);

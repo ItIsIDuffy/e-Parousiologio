@@ -22,7 +22,7 @@ import gr.ihu.eparousiologio.adapter.SwapStudentAdapter;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.Section;
 import gr.ihu.eparousiologio.model.Student;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -112,7 +112,7 @@ public class TargetStudentToSwapWithFragment extends Fragment {
                         targetSection.getLabId(), student2ToBeSwapped, new OnResultListener<>() {
                             @Override
                             public void onSuccess(Void result) {
-                                new CourseSectionDAO().addNoteOnCourse(course.getCourseId(), "ΑΜΟΙΒΑΙΑ ΑΝΤΑΛΛΑΓΗ: " + student1ToBeSwapped.getStudentAEM() + " από τμήμα " + sourceSection.getName() + " με " + student2ToBeSwapped.getStudentAEM() + " από τμήμα " + targetSection.getName(), new OnResultListener<Void>() {
+                                new CourseResubstitutionLogNoteSectionDAO().addLogOnCourse(course.getCourseId(), "ΑΜΟΙΒΑΙΑ ΑΝΤΑΛΛΑΓΗ: " + student1ToBeSwapped.getStudentAEM() + " από τμήμα " + sourceSection.getName() + " με " + student2ToBeSwapped.getStudentAEM() + " από τμήμα " + targetSection.getName(), new OnResultListener<Void>() {
                                     @Override
                                     public void onSuccess(Void result) {
                                         CustomToast.showSuccess(requireActivity(), "Η αμοιβαία ανταλλαγή ολοκληρώθηκε");

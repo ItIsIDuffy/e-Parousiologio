@@ -17,7 +17,7 @@ import gr.ihu.eparousiologio.adapter.CourseSectionAdapter;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.Section;
 import gr.ihu.eparousiologio.model.Student;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -27,7 +27,7 @@ public class SectionsToTransferStudentFragment extends Fragment {
     private static final String ARG_FRAGMENT_COURSE = "course";
     private static final String ARG_FRAGMENT_SECTION_SOURCE = "sectionSource";
     private static final String ARG_FRAGMENT_STUDENT_DESTINATION = "studentToTransfer";
-    private final CourseSectionDAO courseSectionDAO = new CourseSectionDAO();
+    private final CourseResubstitutionLogNoteSectionDAO courseSectionDAO = new CourseResubstitutionLogNoteSectionDAO();
     private final StudentRecordsRepositoryDAO studentRecordsRepositoryDAO = new StudentRecordsRepositoryDAO();
     View rootView;
     private Student studentToTransfer;
@@ -81,7 +81,7 @@ public class SectionsToTransferStudentFragment extends Fragment {
             studentRecordsRepositoryDAO.transferStudent(selectedCourse.getCourseId(), sectionSource.getLabId(), selectedSection.getLabId(), studentToTransfer, new OnResultListener<>() {
                 @Override
                 public void onSuccess(Void result) {
-                    new CourseSectionDAO().addNoteOnCourse(course.getCourseId(), "ΜΕΤΑΦΟΡΑ ΦΟΙΤΗΤΗ: " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName(), new OnResultListener<Void>() {
+                    new CourseResubstitutionLogNoteSectionDAO().addLogOnCourse(course.getCourseId(), "ΜΕΤΑΦΟΡΑ ΦΟΙΤΗΤΗ: " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName(), new OnResultListener<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             CustomToast.showSuccess(requireActivity(), "Η μεταφορά του " + studentToTransfer.getStudentAEM() + " στο τμήμα " + selectedSection.getName() + " πραγματοποιήθηκε");

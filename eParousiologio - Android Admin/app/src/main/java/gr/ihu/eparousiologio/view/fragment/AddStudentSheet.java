@@ -12,9 +12,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -29,7 +26,7 @@ import gr.ihu.eparousiologio.R;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.Section;
 import gr.ihu.eparousiologio.model.Student;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -106,7 +103,7 @@ public class AddStudentSheet extends BottomSheetDialogFragment {
             new StudentRecordsRepositoryDAO().addStudentToCourseSection(course.getCourseId(), section.getLabId(), student, new OnResultListener<>() {
                 @Override
                 public void onSuccess(Void result) {
-                    new CourseSectionDAO().addNoteOnCourse(course.getCourseId(), "ΕΓΓΡΑΦΗ ΦΟΙΤΗΤΗ: " + aem + " στο τμήμα " + section.getName(), new OnResultListener<Void>() {
+                    new CourseResubstitutionLogNoteSectionDAO().addLogOnCourse(course.getCourseId(), "ΕΓΓΡΑΦΗ ΦΟΙΤΗΤΗ: " + aem + " στο τμήμα " + section.getName(), new OnResultListener<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             CustomToast.showSuccess(requireActivity(), "Επιτυχής εγγραφή φοιτητή");

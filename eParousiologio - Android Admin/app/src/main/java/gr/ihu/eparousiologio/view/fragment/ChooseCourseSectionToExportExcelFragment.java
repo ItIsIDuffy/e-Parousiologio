@@ -20,7 +20,7 @@ import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.CourseNote;
 import gr.ihu.eparousiologio.model.AttendanceSnapshot;
 import gr.ihu.eparousiologio.model.Section;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.repository.CourseSectionRepository;
 import gr.ihu.eparousiologio.repository.AttendanceDAO;
 import gr.ihu.eparousiologio.repository.StudentRecordsRepositoryDAO;
@@ -32,11 +32,11 @@ import gr.ihu.eparousiologio.view.MainActivity;
 
 public class ChooseCourseSectionToExportExcelFragment extends Fragment {
 
-    private final CourseSectionDAO courseSectionDAO = new CourseSectionDAO();
+    private final CourseResubstitutionLogNoteSectionDAO courseSectionDAO = new CourseResubstitutionLogNoteSectionDAO();
     View rootView;
     CourseAdapter courseAdapter;
     AttendanceDAO attendanceDAO = new AttendanceDAO();
-    CourseSectionRepository courseRepo = new CourseSectionDAO();
+    CourseSectionRepository courseRepo = new CourseResubstitutionLogNoteSectionDAO();
     StudentRecordsRepositoryDAO studentRecordsRepositoryDAO = new StudentRecordsRepositoryDAO();
 
     public ChooseCourseSectionToExportExcelFragment() {

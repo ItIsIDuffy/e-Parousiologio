@@ -16,14 +16,14 @@ import gr.ihu.eparousiologio.R;
 import gr.ihu.eparousiologio.adapter.CourseSectionAdapter;
 import gr.ihu.eparousiologio.model.Course;
 import gr.ihu.eparousiologio.model.Section;
-import gr.ihu.eparousiologio.repository.CourseSectionDAO;
+import gr.ihu.eparousiologio.repository.CourseResubstitutionLogNoteSectionDAO;
 import gr.ihu.eparousiologio.util.CustomToast;
 import gr.ihu.eparousiologio.util.OnResultListener;
 import gr.ihu.eparousiologio.view.MainActivity;
 
 public class SelectCourseSectionToViewStudentsFragment extends Fragment {
 
-    private final CourseSectionDAO courseSectionDAO = new CourseSectionDAO();
+    private final CourseResubstitutionLogNoteSectionDAO courseSectionDAO = new CourseResubstitutionLogNoteSectionDAO();
     View rootView;
     private CourseSectionAdapter courseSectionAdapter;
     private List<Course> courseSectionsList;
