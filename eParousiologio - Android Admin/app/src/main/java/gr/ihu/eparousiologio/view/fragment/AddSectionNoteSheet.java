@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,6 +70,8 @@ public class AddSectionNoteSheet extends BottomSheetDialogFragment {
         addSectionNoteCourseMTV.setText(liveCourse.getCourseTitle());
         addSectionNoteSectionMTV.setText(liveCourse.getLabName());
 
+        addSectionNoteTIL.setEndIconOnClickListener(view -> Toast.makeText(requireActivity(), "Για αναπλήρωση πληκτρολογήστε σκέτο ΑΕΜ ΠΡΟΣΕΚΤΙΚΑ!!\nΣε οποιαδήποτε άλλη περίπτωση δημιουργείται απλή σημείωση.", Toast.LENGTH_LONG).show());
+
         setUpTextWatcher(addSectionNoteTIET);
 
         addSectionNoteSubmitMB.setOnClickListener(view -> {
@@ -109,7 +112,7 @@ public class AddSectionNoteSheet extends BottomSheetDialogFragment {
                                 } else if (msg.contains("δεν ανήκει σε κανένα εργαστήριο")) {
                                     dismiss();
                                     CustomToast.showWarning(requireActivity(), "O " + noteText + " δεν ανήκει σε κανένα εργαστήριο.");
-                                } else if (msg.contains("έχει ήδη δηλωθεί προς αναπλήρωση.")) {
+                                } else if (msg.contains("Υπάρχει ήδη αναπλήρωση")) {
                                     dismiss();
                                     CustomToast.showWarning(requireActivity(), "O " + noteText + " έχει ήδη δηλωθεί προς αναπλήρωση.");
                                 } else {

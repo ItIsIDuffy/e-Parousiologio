@@ -57,6 +57,9 @@
         app:hintTextColor="@color/text_input_hint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
+        app:endIconDrawable="@drawable/ic_info"
+        app:endIconTint="@color/primary_color_4"
+        app:endIconMode="custom"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addSectionNoteSectionMTV">
 
@@ -80,6 +83,7 @@
         android:text="@string/add"
         android:textColor="@color/primary_color_3"
         app:backgroundTint="@color/primary_color_5"
+        app:rippleColor="@color/primary_color_3"
         app:cornerRadius="12dp"
         app:iconTint="@color/primary_color_3"
         app:layout_constraintEnd_toEndOf="@+id/addSectionNoteTIL"

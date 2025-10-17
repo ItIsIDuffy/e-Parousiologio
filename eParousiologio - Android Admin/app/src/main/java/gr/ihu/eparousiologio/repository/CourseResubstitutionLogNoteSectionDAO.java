@@ -197,16 +197,15 @@ public class CourseResubstitutionLogNoteSectionDAO implements CourseSectionRepos
                 .document(courseId)
                 .collection(COLLECTION_NAME_NOTES)
                 .whereEqualTo("aem", aem)
-                .whereEqualTo("labId", labId)
-                .whereEqualTo("isLog", false)
                 .whereGreaterThanOrEqualTo("createdAt", startOfToday)
                 .whereLessThan("createdAt", startOfTomorrow)
+                .limit(1)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
                         listener.onSuccess(null);
                     } else {
-                        listener.onFailure(new Exception("έχει ήδη δηλωθεί προς αναπλήρωση."));
+                        listener.onFailure(new Exception("Υπάρχει ήδη αναπλήρωση για σήμερα για τον φοιτητή " + aem + "."));
                     }
                 })
                 .addOnFailureListener(listener::onFailure);
