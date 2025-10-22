@@ -17,5 +17,7 @@ public interface StudentRecordsRepository {
 
     void deleteStudentFromSection(String courseId, String sectionId, Student student, OnResultListener<Void> listener);
 
+    void searchStudentsByAemPrefix(String prefix, OnResultListener<List<Student>> listener);
+
     ListenerRegistration listenToStudentsInSection(String courseId, String sectionId, OnResultListener<List<Student>> listener);
 }

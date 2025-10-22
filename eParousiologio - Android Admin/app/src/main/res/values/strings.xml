@@ -34,4 +34,8 @@
     <string name="type_here">Πληκτρολογίστε εδώ...</string>
     <string name="add">Προσθήκη</string>
     <string name="submit_attendance_record">Ανέβασμα κατάστασης παρουσιών</string>
+    <string name="resubstitution_by_other_section">Αναπλήρωση από άλλο εργαστήριο</string>
+    <string name="search_hint">Αναζήτηση φοιτητή με ΑΕΜ</string>
+    <string name="no_students_found">Δεν βρέθηκαν φοιτητές</string>
+    <string name="decoy_text_resubstitution">Είστε σίγουρος ότι θέλετε να καταχωρήσετε τον φοιτητή προς αναπλήρωση;</string>
 </resources>

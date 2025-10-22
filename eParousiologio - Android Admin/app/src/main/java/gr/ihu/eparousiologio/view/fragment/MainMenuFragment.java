@@ -44,6 +44,7 @@ public class MainMenuFragment extends Fragment {
     private View rootView;
 
     private MaterialButton accessStudentRecordMB,
+            addResubstitutionMB,
             importStudentRecordMB,
             selectCurrentSectionMB,
             exportAttendanceMB,
@@ -108,6 +109,7 @@ public class MainMenuFragment extends Fragment {
     private void initializeUI() {
         actionsGroup = rootView.findViewById(R.id.actionsGroup);
         accessStudentRecordMB = rootView.findViewById(R.id.accessStudentRecordMB);
+        addResubstitutionMB = rootView.findViewById(R.id.addResubstitutionMB);
         importStudentRecordMB = rootView.findViewById(R.id.importStudentRecordMB);
         selectCurrentSectionMB = rootView.findViewById(R.id.selectCurrentSectionMB);
         exportAttendanceMB = rootView.findViewById(R.id.exportAttendanceMB);
@@ -207,6 +209,11 @@ public class MainMenuFragment extends Fragment {
                             AuthManager.get().ensureTeacherSignedIn(() ->
                                     ((MainActivity) requireActivity())
                                             .addFragment(DailyAttendanceRecordFragment.newInstance(liveCourse)))
+                    );
+
+                    addResubstitutionMB.setOnClickListener(v ->
+                            ((MainActivity) requireActivity())
+                                    .addFragment(ResubstitutionFragment.newInstance(liveCourse))
                     );
 
                     addNoteToSectionMB.setOnClickListener(v ->

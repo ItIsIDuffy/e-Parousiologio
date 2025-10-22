@@ -1,5 +1,7 @@
 package gr.ihu.eparousiologio.repository;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -7,7 +9,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import gr.ihu.eparousiologio.model.Student;
 import gr.ihu.eparousiologio.util.OnResultListener;
@@ -168,4 +172,30 @@ public class StudentRecordsRepositoryDAO implements StudentRecordsRepository {
                     listener.onSuccess(students);
                 });
     }
+
+    @Override
+    public void searchStudentsByAemPrefix(String prefix, OnResultListener<List<Student>> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collectionGroup(COLLECTION_NAME_STUDENTS)
+                .whereGreaterThanOrEqualTo("studentAEM", prefix)
+                .whereLessThan("studentAEM", prefix + '\uf8ff')
+                .limit(5)
+                .get()
+                .addOnSuccessListener(qs -> {
+                    List<Student> students = new ArrayList<>();
+                    Set<String> seenAEMs = new HashSet<>();
+
+                    for (DocumentSnapshot doc : qs.getDocuments()) {
+                        Student s = doc.toObject(Student.class);
+                        if (s != null && seenAEMs.add(s.getStudentAEM())) {
+                            students.add(s);
+                        }
+                    }
+
+                    listener.onSuccess(students);
+                })
+                .addOnFailureListener(listener::onFailure);
+    }
+
 }

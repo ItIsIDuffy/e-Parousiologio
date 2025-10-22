@@ -88,70 +88,27 @@ public class AddSectionNoteSheet extends BottomSheetDialogFragment {
             addSectionNoteTIL.setError(null);
             addSectionNoteTIL.setErrorEnabled(false);
 
-            if (isAemLike(noteText)) {
-                courseSectionDAO.addResubstitutionNoteOnCourse(
-                        liveCourse.getCourseId(),
-                        noteText,
-                        liveCourse.getLabId(),
-                        liveCourse.getLabName(),
-                        new OnResultListener<>() {
-                            @Override
-                            public void onSuccess(Void result) {
-                                addSectionNoteTIET.setText("");
-                                dismiss();
-                                CustomToast.showSuccess(requireActivity(), "O " + noteText + " καταχωρήθηκε προς αναπλήρωση.");
-                            }
+            courseSectionDAO.addNoteOnCourse(
+                    liveCourse.getCourseId(),
+                    noteText,
+                    new OnResultListener<>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            addSectionNoteTIET.setText("");
+                            view.setEnabled(true);
+                            dismiss();
+                            CustomToast.showSuccess(requireActivity(), "Επιτυχής προσθήκη σημείωσης.");
+                        }
 
-                            @Override
-                            public void onFailure(Exception e) {
-                                String msg = e.getMessage() != null ? e.getMessage().trim() : "";
-
-                                if (msg.contains("ανήκει ήδη στο τρέχον τμήμα")) {
-                                    dismiss();
-                                    CustomToast.showWarning(requireActivity(), "O " + noteText + " ανήκει ήδη στο τρέχον τμήμα. Καταχωρήστε παρουσία από τη λίστα παρουσιών.");
-                                } else if (msg.contains("δεν ανήκει σε κανένα εργαστήριο")) {
-                                    dismiss();
-                                    CustomToast.showWarning(requireActivity(), "O " + noteText + " δεν ανήκει σε κανένα εργαστήριο.");
-                                } else if (msg.contains("Υπάρχει ήδη αναπλήρωση")) {
-                                    dismiss();
-                                    CustomToast.showWarning(requireActivity(), "O " + noteText + " έχει ήδη δηλωθεί προς αναπλήρωση.");
-                                } else {
-                                    dismiss();
-                                    CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης αναπλήρωσης");
-                                }
-                            }
-                        });
-            } else {
-                courseSectionDAO.addNoteOnCourse(
-                        liveCourse.getCourseId(),
-                        noteText,
-                        new OnResultListener<>() {
-                            @Override
-                            public void onSuccess(Void result) {
-                                addSectionNoteTIET.setText("");
-                                dismiss();
-                                CustomToast.showSuccess(requireActivity(), "Επιτυχής προσθήκη σημείωσης.");
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                dismiss();
-                                CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης");
-                            }
-                        });
-            }
+                        @Override
+                        public void onFailure(Exception e) {
+                            view.setEnabled(true);
+                            dismiss();
+                            CustomToast.showError(requireActivity(), "Αποτυχία προσθήκης σημείωσης");
+                        }
+                    });
         });
 
-    }
-
-    private boolean isAemLike(String text) {
-        if (!text.matches("\\d{1,5}")) return false;
-        try {
-            int value = Integer.parseInt(text);
-            return value >= 1 && value <= 99999;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 
     private void setUpTextWatcher(TextInputEditText textInputEditText) {
